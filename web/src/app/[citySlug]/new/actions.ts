@@ -18,7 +18,8 @@ export async function createPost(formData: FormData) {
   const postType = formData.get("postType");
 
   try {
-    const response = await fetch("http://localhost:5000/api/posts", {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const response = await fetch(`${API_URL}/posts`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
