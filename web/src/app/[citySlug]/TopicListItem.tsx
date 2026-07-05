@@ -79,7 +79,7 @@ export default function TopicListItem({ post, citySlug, currentUser }: { post: a
       
       <div className="hidden md:block md:col-span-2 text-center text-[11px] text-gray-500 dark:text-gray-400">
         <div>{post.viewsCount || 0} xem</div>
-        <div>{post.comments?.length || 0} trả lời</div>
+        <div>{post._count?.comments || post.comments?.length || 0} trả lời</div>
       </div>
       
       <div className="col-span-4 md:col-span-3 text-right text-[11px] text-gray-500 dark:text-gray-400 flex flex-col items-end pr-1">

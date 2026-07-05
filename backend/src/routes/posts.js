@@ -39,6 +39,12 @@ router.get('/', async (req, res) => {
         include: {
           user: { select: { nickname: true, avatarUrl: true, fullName: true, role: true, postCount: true } },
           city: { select: { name: true, slug: true } },
+          comments: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: { user: { select: { nickname: true } } }
+          },
+          _count: { select: { comments: true } }
         },
         orderBy: [
           { isPinned: 'desc' }, // Bài ghim luôn lên đầu
