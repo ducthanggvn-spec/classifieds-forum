@@ -11,7 +11,7 @@ export default function AdminDashboard({ currentUser, initialUsers, initialLogs 
     if (!confirm(`Bạn có chắc chắn đổi quyền của user này thành ${newRole.toUpperCase()}?`)) return;
     
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
       const res = await fetch(`${API_URL}/admin/users/${userId}/role`, {
         method: "PUT",
         headers: { 

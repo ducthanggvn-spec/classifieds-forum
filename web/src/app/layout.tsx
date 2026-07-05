@@ -25,7 +25,7 @@ export default async function RootLayout({
 
   let dbUser = null;
   if (user) {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
     try {
       const userRes = await fetch(`${API_URL}/users/${user.id}`, { cache: "no-store" });
       if (userRes.ok) {

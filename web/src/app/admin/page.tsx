@@ -13,7 +13,7 @@ export default async function AdminPage() {
 
   if (!user) redirect("/login");
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
   
   // Lấy thông tin user từ DB để check role
   const userRes = await fetch(`${API_URL}/users/${user.id}`, { cache: "no-store" });

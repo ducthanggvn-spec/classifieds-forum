@@ -6,7 +6,7 @@ export default function BookmarkButton({ postId, currentUserSupabaseUid }: { pos
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
 
   useEffect(() => {
     if (!currentUserSupabaseUid) return;

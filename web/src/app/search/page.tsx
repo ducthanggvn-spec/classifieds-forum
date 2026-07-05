@@ -10,7 +10,7 @@ export default async function SearchPage({
 }) {
   const { q, scope, page } = await searchParams;
   
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
   
   const queryParams = new URLSearchParams();
   if (q) queryParams.append('q', q);

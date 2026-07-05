@@ -23,7 +23,7 @@ export default function AdminTools({ currentUser }: { currentUser: any }) {
 
   const fetchUsers = async () => {
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
       const res = await fetch(`${API_URL}/admin/users`, {
         headers: { "x-supabase-uid": currentUser.supabaseUid },
       });
@@ -40,7 +40,7 @@ export default function AdminTools({ currentUser }: { currentUser: any }) {
 
   const fetchLogs = async () => {
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
       const res = await fetch(`${API_URL}/admin/logs`, {
         headers: { "x-supabase-uid": currentUser.supabaseUid },
       });
@@ -57,7 +57,7 @@ export default function AdminTools({ currentUser }: { currentUser: any }) {
     if (!confirm(`Bạn có chắc muốn đổi quyền thành ${newRole}?`)) return;
     
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
       const res = await fetch(`${API_URL}/admin/users/${userId}/role`, {
         method: "PUT",
         headers: {

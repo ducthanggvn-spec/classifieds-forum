@@ -17,7 +17,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
     redirect("/login");
   }
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
   const res = await fetch(`${API_URL}/messages/${id}?supabaseUid=${user.id}`, { cache: "no-store" });
   const result = res.ok ? await res.json() : { success: false, data: null, error: "Không tải được dữ liệu" };
   

@@ -32,7 +32,7 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
     setIsLoading(true);
     
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
       const endpoint = targetType === 'post' ? '/reactions/post' : '/reactions/comment';
       const body = targetType === 'post' 
         ? { postId: targetId, type, supabaseUid: currentUserSupabaseUid }
