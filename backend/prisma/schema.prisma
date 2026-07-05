@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  supabaseUid   String   @unique // ID từ bảng auth.users của Supabase
+  email         String   @unique
+  nickname      String   @unique @default(uuid()) // Tên hiển thị duy nhất trên diễn đàn
+  avatarUrl     String?           // Đường dẫn ảnh đại diện
+  fullName      String
+  phone         String?
+  birthYear     Int?     // Lưu năm sinh để hiển thị tuổi/danh xưng
+  role          String   @default("user") // admin, mod, user
+  postCount     Int      @default(0)      // Dùng để tính danh hiệu: Lính mới, Thành viên lâu năm...
+  createdAt     DateTime @default(now())
+
+  posts          Post[]
+  comments       Comment[]
+  modAssignments ModAssignment[]
+  reactions      Reaction[]
+  bookmarks      Bookmark[]
+  receivedNotifications Notification[] @relation("RecipientNotifications")
+  sentNotifications     Notification[] @relation("ActorNotifications")
+  
+  conversations         ConversationParticipant[]
+  sentMessages          Message[]
+  moderationLogs        ModerationLog[]
+}
+
+model City {
+  id       Int     @id @default(autoincrement())
+  name     String  @unique
+  slug     String  @unique
+  isActive Boolean @default(true)
+
+  posts          Post[]
+  modAssignments ModAssignment[]
+}
+
+model Category {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  slug        String  @unique
+  description String?
+  parentId    Int?
+  parent      Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryToCategory")
+
+  posts       Post[]
+}
+
+model Post {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  cityId        Int
+  categoryId    Int
+  listingType   String   // "buy" hoặc "sell"
+  title         String
+  description   String
+  price         Decimal?
+  status        String   @default("pending") // pending, active, rejected, archived
+  isPinned      Boolean  @default(false) // Ghim bài viết
+  viewsCount    Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastBumpedAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  city     City     @relation(fields: [cityId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  images   PostImage[]
+  comments Comment[]
+  reactions Reaction[]
+  bookmarks Bookmark[]
+
+  @@index([userId])
+  @@index([cityId])
+  @@index([categoryId])
+  @@index([createdAt])
+  @@index([lastBumpedAt])
+}
+
+model PostImage {
+  id        Int    @id @default(autoincrement())
+  postId    Int
+  imageUrl  String
+  sortOrder Int    @default(0)
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  userId    Int
+  content   String
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reactions Reaction[]
+
+  @@index([postId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Reaction {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  postId     Int?     // Có thể thả cảm xúc vào Post
+  commentId  Int?     // Hoặc thả cảm xúc vào Comment
+  type       String   // like, dislike, haha, love, sad, angry
+  createdAt  DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  // Đảm bảo 1 user chỉ thả 1 cảm xúc trên 1 bài viết hoặc 1 bình luận
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+  @@index([userId])
+}
+
+model ModAssignment {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  cityId Int? // null nghĩa là quản lý toàn hệ thống
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city City? @relation(fields: [cityId], references: [id], onDelete: Cascade)
+}
+
+model Bookmark {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  postId    Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  // Đảm bảo 1 user chỉ bookmark 1 post một lần
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  recipientId Int      // Người nhận thông báo
+  actorId     Int?     // Người tạo ra hành động (người like, comment...)
+  type        String   // 'LIKE_POST', 'LIKE_COMMENT', 'COMMENT', 'REPLY', 'INBOX'
+  targetId    Int?     // ID của Post, Comment, hoặc Inbox tùy thuộc vào type
+  content     String?  // Nội dung tóm tắt (VD: "đã thích bài viết của bạn")
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  recipient User  @relation("RecipientNotifications", fields: [recipientId], references: [id], onDelete: Cascade)
+  actor     User? @relation("ActorNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId])
+  @@index([createdAt])
+}
+
+model Conversation {
+  id        Int      @id @default(autoincrement())
+  subject   String?  // Tiêu đề cuộc trò chuyện
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt // Cập nhật khi có tin nhắn mới
+
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  id             Int      @id @default(autoincrement())
+  conversationId Int
+  userId         Int
+  lastReadAt     DateTime? // Thời điểm user đọc tin nhắn cuối cùng
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId]) // Một user chỉ tham gia 1 conversation 1 lần
+  @@index([userId])
+}
+
+model Message {
+  id             Int      @id @default(autoincrement())
+  conversationId Int
+  senderId       Int
+  content        String
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model ModerationLog {
+  id          Int      @id @default(autoincrement())
+  modId       Int
+  action      String
+  targetId    Int?
+  targetInfo  String?
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  mod User @relation(fields: [modId], references: [id], onDelete: Cascade)
+}

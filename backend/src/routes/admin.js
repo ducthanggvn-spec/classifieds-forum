@@ -1,0 +1,143 @@
+const express = require('express');
+const router = express.Router();
+const prisma = require('../db');
+const { requireAdmin, requireAdminOrMod } = require('../middleware/auth');
+
+// Lấy danh sách thành viên (Chỉ Admin)
+router.get('/users', requireAdmin, async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        nickname: true,
+        role: true,
+        postCount: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json({ success: true, data: users });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Lỗi khi tải danh sách người dùng' });
+  }
+});
+
+// Cập nhật quyền thành viên (Chỉ Admin)
+router.put('/users/:id/role', requireAdmin, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { role } = req.body;
+
+    if (!['admin', 'mod', 'user'].includes(role)) {
+      return res.status(400).json({ success: false, error: 'Quyền không hợp lệ' });
+    }
+
+    // Không cho phép tự hạ quyền của chính mình (chống lỗi khóa tài khoản)
+    if (req.user.id === userId && role !== 'admin') {
+      return res.status(400).json({ success: false, error: 'Không thể tự hạ quyền Admin của chính mình' });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { role }
+    });
+
+    res.json({ success: true, message: 'Đã cập nhật quyền thành công' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Lỗi khi cập nhật quyền' });
+  }
+});
+
+// Xóa/Ẩn bài đăng (Admin/Mod)
+router.delete('/posts/:id', requireAdminOrMod, async (req, res) => {
+  try {
+    const postId = parseInt(req.params.id);
+    const { reason } = req.body;
+
+    if (!reason) {
+      return res.status(400).json({ success: false, error: 'Bắt buộc phải nhập lý do xóa bài' });
+    }
+
+    const post = await prisma.post.findUnique({ where: { id: postId } });
+    if (!post) {
+      return res.status(404).json({ success: false, error: 'Bài đăng không tồn tại' });
+    }
+
+    // Xóa vật lý (Hard-delete)
+    await prisma.post.delete({
+      where: { id: postId }
+    });
+
+    // Lưu Log
+    await prisma.moderationLog.create({
+      data: {
+        modId: req.user.id,
+        action: 'DELETE_POST',
+        targetId: postId,
+        targetInfo: post.title,
+        reason: reason
+      }
+    });
+
+    res.json({ success: true, message: 'Đã xóa bài đăng thành công' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Lỗi khi xóa bài đăng' });
+  }
+});
+
+// Lấy danh sách Moderation Log (Chỉ Admin/Mod)
+router.get('/logs', requireAdminOrMod, async (req, res) => {
+  try {
+    const logs = await prisma.moderationLog.findMany({
+      include: {
+        mod: { select: { nickname: true, role: true } }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 100 // Giới hạn lấy 100 log gần nhất cho nhẹ
+    });
+    res.json({ success: true, data: logs });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Lỗi khi tải lịch sử quản trị' });
+  }
+});
+
+// Ghim/Bỏ ghim bài viết (Admin/Mod)
+router.put('/posts/:id/pin', requireAdminOrMod, async (req, res) => {
+  try {
+    const postId = parseInt(req.params.id);
+    const { isPinned } = req.body; // true hoặc false
+
+    const post = await prisma.post.findUnique({ where: { id: postId } });
+    if (!post) {
+      return res.status(404).json({ success: false, error: 'Bài đăng không tồn tại' });
+    }
+
+    await prisma.post.update({
+      where: { id: postId },
+      data: { isPinned: !!isPinned }
+    });
+
+    // Lưu Log
+    await prisma.moderationLog.create({
+      data: {
+        modId: req.user.id,
+        action: isPinned ? 'PIN_POST' : 'UNPIN_POST',
+        targetId: postId,
+        targetInfo: post.title,
+        reason: 'Quản trị viên thao tác ghim bài'
+      }
+    });
+
+    res.json({ success: true, message: isPinned ? 'Đã ghim bài viết' : 'Đã bỏ ghim bài viết' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Lỗi khi thao tác ghim bài' });
+  }
+});
+
+module.exports = router;

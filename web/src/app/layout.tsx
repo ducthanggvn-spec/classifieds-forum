@@ -1,0 +1,143 @@
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Link from "next/link";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { createClient } from "@/utils/supabase/server";
+import { logout } from "@/app/login/actions";
+import NotificationBell from "@/components/NotificationBell";
+
+const inter = Inter({ subsets: ["latin", "vietnamese"], variable: "--font-inter" });
+
+export const metadata: Metadata = {
+  title: "Diễn đàn TTVNOL",
+  description: "Cộng đồng rao vặt, mua bán nhanh chóng - TTVNOL",
+};
+
+export default async function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let dbUser = null;
+  if (user) {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    try {
+      const userRes = await fetch(`${API_URL}/users/${user.id}`, { cache: "no-store" });
+      if (userRes.ok) {
+        dbUser = await userRes.json();
+      }
+    } catch (e) {
+      console.error("Lỗi fetch user ở layout:", e);
+    }
+  }
+
+  return (
+    <html lang="vi" suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {/* Header phong cách Voz */}
+          <header className="bg-primary text-white border-b-4 border-secondary shadow-sm">
+            {/* Top Bar: Logo & User/Search */}
+            <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Link href="/" className="font-bold text-3xl tracking-tighter text-white hover:opacity-90">
+                  TTVN<span className="text-accent">OL</span>
+                  <span className="text-sm ml-6 font-normal text-blue-200 hidden sm:inline-block tracking-wide">Cộng đồng Mua Bán - Rao Vặt</span>
+                </Link>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <form action="/search" method="GET" className="hidden lg:flex items-center bg-white/10 border border-white/20 rounded px-2 py-1 focus-within:bg-white focus-within:text-black transition-all group">
+                  <select name="scope" className="bg-transparent text-xs text-white group-focus-within:text-black focus:outline-none border-r border-white/30 group-focus-within:border-gray-300 pr-2 mr-2 cursor-pointer">
+                    <option value="all" className="text-black">Mọi nơi</option>
+                    <option value="hanoi" className="text-black">Hà Nội</option>
+                    <option value="haiphong" className="text-black">Hải Phòng</option>
+                    <option value="hcm" className="text-black">TP.HCM</option>
+                  </select>
+                  <input 
+                    type="text" 
+                    name="q"
+                    placeholder="Tìm kiếm..." 
+                    className="bg-transparent text-sm text-white group-focus-within:text-black placeholder-blue-200 group-focus-within:placeholder-gray-400 focus:outline-none w-40"
+                  />
+                  <button type="submit" className="text-blue-200 hover:text-white group-focus-within:text-primary px-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                  </button>
+                </form>
+                
+                {user ? (
+                  <div className="flex items-center gap-2 border-l border-white/20 pl-4">
+                    {dbUser && <NotificationBell currentUserDbId={dbUser.id} />}
+                    <Link href="/inbox" className="p-2 text-white hover:text-accent relative hover:bg-white/10 rounded transition-colors" title="Hộp thư (Inbox)">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </Link>
+                    <Link href="/profile" className="flex items-center gap-2 group hover:bg-white/10 px-2 py-1 rounded transition-colors ml-2">
+                      <div className="w-8 h-8 rounded bg-white text-primary flex items-center justify-center font-bold text-sm overflow-hidden">
+                        {(dbUser?.avatarUrl || user.user_metadata?.avatar_url) ? (
+                          <img src={dbUser?.avatarUrl || user.user_metadata?.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          (user.user_metadata?.nickname || user.email)?.charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <span className="hidden lg:inline text-sm font-bold text-white group-hover:text-blue-100">
+                        {user.user_metadata?.nickname || user.email?.split("@")[0]}
+                      </span>
+                    </Link>
+                    {(dbUser?.role === 'admin' || dbUser?.role === 'mod') && (
+                      <Link href="/admin" className="text-xs font-bold bg-red-600 text-white px-2 py-1 rounded ml-2 hover:bg-red-700 transition-colors" title="Trang Quản Trị">
+                        ADMIN
+                      </Link>
+                    )}
+                    <form action={logout} className="ml-2">
+                      <button type="submit" className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-white/10 hover:bg-red-500 border border-white/20 hover:border-red-500 rounded shadow-sm transition-all group" title="Đăng xuất">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 opacity-70 group-hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span className="hidden xl:inline">Đăng xuất</span>
+                      </button>
+                    </form>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 border-l border-white/20 pl-4">
+                    <Link href="/login" className="text-sm font-bold hover:underline text-white">Đăng nhập</Link>
+                    <span className="text-white/50">|</span>
+                    <Link href="/login?tab=register" className="text-sm font-bold hover:underline text-white">Đăng ký</Link>
+                  </div>
+                )}
+                <ThemeToggle />
+              </div>
+            </div>
+
+            {/* Bottom Nav: Menu Tabs */}
+            <div className="bg-secondary">
+              <div className="max-w-7xl mx-auto px-4 flex">
+                <nav className="flex font-medium text-sm">
+                  <Link href="/" className="px-4 py-3 hover:bg-white/10 transition-colors border-r border-white/10 text-white">
+                    Trang chủ
+                  </Link>
+                </nav>
+              </div>
+            </div>
+          </header>
+
+          {/* Nội dung trang */}
+          <main className="max-w-7xl mx-auto px-4 py-6">
+            {children}
+          </main>
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
