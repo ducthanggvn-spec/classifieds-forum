@@ -63,8 +63,8 @@ export default function EditPostPage({ params }: { params: Promise<{ citySlug: s
       alert("Vui lòng chọn file hình ảnh hợp lệ.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Kích thước file không được vượt quá 5MB.");
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Kích thước file không được vượt quá 15MB.");
       return;
     }
 

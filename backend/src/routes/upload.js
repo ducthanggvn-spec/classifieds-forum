@@ -15,7 +15,7 @@ cloudinary.config({
 const storage = multer.memoryStorage();
 const upload = multer({ 
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Giới hạn ảnh 5MB
+  limits: { fileSize: 15 * 1024 * 1024 }, // Giới hạn ảnh 15MB cho điện thoại đời mới
 });
 
 // API Upload Ảnh

@@ -5,7 +5,7 @@ const multer = require('multer');
 const { createClient } = require('@supabase/supabase-js');
 
 // Cấu hình Multer để lưu file tạm vào bộ nhớ
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } }); // Tối đa 2MB
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // Tối đa 5MB
 
 // Khởi tạo Supabase Client
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY);

@@ -13,6 +13,11 @@ export default function AvatarUpload({ userId, currentAvatar, nickname }: { user
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Kích thước ảnh đại diện không được vượt quá 5MB.");
+      return;
+    }
+
     // Hiển thị preview ngay lập tức
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
