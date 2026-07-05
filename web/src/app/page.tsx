@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTimeAgo } from "@/utils/time";
+import { timeAgo } from "@/utils/time";
 
 export default async function Home() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
@@ -56,7 +56,7 @@ export default async function Home() {
           <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 pr-1">
             {getStat('ha-noi', 'marketplace').latestTime ? (
               <>
-                <div>{getTimeAgo(getStat('ha-noi', 'marketplace').latestTime)}</div>
+                <div>{timeAgo(getStat('ha-noi', 'marketplace').latestTime)}</div>
                 <div className="text-primary truncate">{getStat('ha-noi', 'marketplace').latestTitle}</div>
               </>
             ) : (
@@ -85,7 +85,7 @@ export default async function Home() {
           <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 pr-1">
             {getStat('hai-phong', 'marketplace').latestTime ? (
               <>
-                <div>{getTimeAgo(getStat('hai-phong', 'marketplace').latestTime)}</div>
+                <div>{timeAgo(getStat('hai-phong', 'marketplace').latestTime)}</div>
                 <div className="text-primary truncate">{getStat('hai-phong', 'marketplace').latestTitle}</div>
               </>
             ) : (
@@ -114,7 +114,7 @@ export default async function Home() {
           <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 pr-1">
             {getStat('ho-chi-minh', 'marketplace').latestTime ? (
               <>
-                <div>{getTimeAgo(getStat('ho-chi-minh', 'marketplace').latestTime)}</div>
+                <div>{timeAgo(getStat('ho-chi-minh', 'marketplace').latestTime)}</div>
                 <div className="text-primary truncate">{getStat('ho-chi-minh', 'marketplace').latestTitle}</div>
               </>
             ) : (
@@ -156,7 +156,7 @@ export default async function Home() {
           <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 pr-1">
             {getStat('ha-noi', 'food').latestTime ? (
               <>
-                <div>{getTimeAgo(getStat('ha-noi', 'food').latestTime)}</div>
+                <div>{timeAgo(getStat('ha-noi', 'food').latestTime)}</div>
                 <div className="text-orange-600 truncate">{getStat('ha-noi', 'food').latestTitle}</div>
               </>
             ) : (
@@ -184,7 +184,7 @@ export default async function Home() {
           <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 pr-1">
             {getStat('hai-phong', 'food').latestTime ? (
               <>
-                <div>{getTimeAgo(getStat('hai-phong', 'food').latestTime)}</div>
+                <div>{timeAgo(getStat('hai-phong', 'food').latestTime)}</div>
                 <div className="text-orange-600 truncate">{getStat('hai-phong', 'food').latestTitle}</div>
               </>
             ) : (
@@ -212,7 +212,7 @@ export default async function Home() {
           <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 pr-1">
             {getStat('ho-chi-minh', 'food').latestTime ? (
               <>
-                <div>{getTimeAgo(getStat('ho-chi-minh', 'food').latestTime)}</div>
+                <div>{timeAgo(getStat('ho-chi-minh', 'food').latestTime)}</div>
                 <div className="text-orange-600 truncate">{getStat('ho-chi-minh', 'food').latestTitle}</div>
               </>
             ) : (
