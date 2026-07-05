@@ -4,6 +4,9 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 const app = express();
+// Trust proxy để lấy đúng IP người dùng khi chạy sau Load Balancer của Render
+app.set('trust proxy', 1);
+
 const rateLimit = require('express-rate-limit');
 const PORT = process.env.PORT || 5000;
 
