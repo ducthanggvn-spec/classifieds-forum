@@ -43,7 +43,29 @@ export async function signup(formData: FormData) {
     return { error: error.message };
   }
 
-  // TODO: Gọi sang Express Backend để tạo row trong bảng User của Prisma
+  // Gọi sang Express Backend để tạo row trong bảng User của Prisma
+  if (data.email) {
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await fetch(`${API_URL}/users/sync`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            supabaseUid: user.id,
+            email: data.email,
+            nickname: data.options?.data?.nickname,
+            fullName: data.options?.data?.full_name,
+            birthYear: data.options?.data?.birth_year,
+          })
+        });
+      }
+    } catch (err) {
+      console.error("Lỗi đồng bộ Backend:", err);
+    }
+  }
 
   revalidatePath("/", "layout");
   redirect("/");

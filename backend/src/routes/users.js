@@ -10,6 +10,48 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 *
 // Khởi tạo Supabase Client
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY);
 
+// Đồng bộ User từ Supabase sang Prisma
+router.post('/sync', async (req, res) => {
+  try {
+    const { supabaseUid, email, nickname, fullName, birthYear } = req.body;
+    
+    let user = await prisma.user.findUnique({ where: { supabaseUid } });
+    
+    if (!user) {
+      try {
+        user = await prisma.user.create({
+          data: {
+            supabaseUid,
+            email,
+            nickname: nickname || email.split('@')[0],
+            fullName: fullName || email.split('@')[0],
+            birthYear: birthYear ? parseInt(birthYear) : null,
+          }
+        });
+      } catch (err) {
+        // Trùng nickname thì thêm 4 số ngẫu nhiên
+        if (err.code === 'P2002') {
+          user = await prisma.user.create({
+            data: {
+              supabaseUid,
+              email,
+              nickname: (nickname || email.split('@')[0]) + Math.floor(Math.random() * 10000),
+              fullName: fullName || email.split('@')[0],
+              birthYear: birthYear ? parseInt(birthYear) : null,
+            }
+          });
+        } else {
+          throw err;
+        }
+      }
+    }
+    res.json({ success: true, user });
+  } catch (error) {
+    console.error("Lỗi đồng bộ user:", error);
+    res.status(500).json({ error: "Lỗi server khi đồng bộ user" });
+  }
+});
+
 // Lấy thông tin user theo ID (dành cho owner /profile)
 router.get('/:id', async (req, res) => {
   try {
