@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTimeAgo } from "@/utils/time";
 
 export default async function Home() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -15,8 +16,9 @@ export default async function Home() {
   }
 
   const getStat = (citySlug: string, cat: 'marketplace' | 'food') => {
-    if (!stats || !stats[citySlug]) return { posts: 0, replies: 0 };
-    return stats[citySlug][cat] || { posts: 0, replies: 0 };
+    const defaultStat = { posts: 0, replies: 0, latestTitle: null, latestTime: null };
+    if (!stats || !stats[citySlug]) return defaultStat;
+    return stats[citySlug][cat] || defaultStat;
   };
 
   return (
@@ -52,8 +54,14 @@ export default async function Home() {
             <div><span className="font-semibold">{getStat('ha-noi', 'marketplace').replies}</span> Trả lời</div>
           </div>
           <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 pr-1">
-            <div>1 phút trước</div>
-            <div className="text-primary truncate">Mua áo phao nam</div>
+            {getStat('ha-noi', 'marketplace').latestTime ? (
+              <>
+                <div>{getTimeAgo(getStat('ha-noi', 'marketplace').latestTime)}</div>
+                <div className="text-primary truncate">{getStat('ha-noi', 'marketplace').latestTitle}</div>
+              </>
+            ) : (
+              <div>Chưa có</div>
+            )}
           </div>
         </div>
 
@@ -75,8 +83,14 @@ export default async function Home() {
             <div><span className="font-semibold">{getStat('hai-phong', 'marketplace').replies}</span> Trả lời</div>
           </div>
           <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 pr-1">
-            <div>12 phút trước</div>
-            <div className="text-primary truncate">Bán xe máy cũ...</div>
+            {getStat('hai-phong', 'marketplace').latestTime ? (
+              <>
+                <div>{getTimeAgo(getStat('hai-phong', 'marketplace').latestTime)}</div>
+                <div className="text-primary truncate">{getStat('hai-phong', 'marketplace').latestTitle}</div>
+              </>
+            ) : (
+              <div>Chưa có</div>
+            )}
           </div>
         </div>
 
@@ -98,8 +112,14 @@ export default async function Home() {
             <div><span className="font-semibold">{getStat('ho-chi-minh', 'marketplace').replies}</span> Trả lời</div>
           </div>
           <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 pr-1">
-            <div>Vài giây trước</div>
-            <div className="text-primary truncate">Sang nhượng mặt...</div>
+            {getStat('ho-chi-minh', 'marketplace').latestTime ? (
+              <>
+                <div>{getTimeAgo(getStat('ho-chi-minh', 'marketplace').latestTime)}</div>
+                <div className="text-primary truncate">{getStat('ho-chi-minh', 'marketplace').latestTitle}</div>
+              </>
+            ) : (
+              <div>Chưa có</div>
+            )}
           </div>
         </div>
       </div>
@@ -134,7 +154,14 @@ export default async function Home() {
             <div><span className="font-semibold">{getStat('ha-noi', 'food').posts}</span> Quán</div>
           </div>
           <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 pr-1">
-            <div className="text-orange-600 truncate">Vừa xong</div>
+            {getStat('ha-noi', 'food').latestTime ? (
+              <>
+                <div>{getTimeAgo(getStat('ha-noi', 'food').latestTime)}</div>
+                <div className="text-orange-600 truncate">{getStat('ha-noi', 'food').latestTitle}</div>
+              </>
+            ) : (
+              <div className="text-orange-600 truncate">Chưa có</div>
+            )}
           </div>
         </div>
 
@@ -155,7 +182,14 @@ export default async function Home() {
             <div><span className="font-semibold">{getStat('hai-phong', 'food').posts}</span> Quán</div>
           </div>
           <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 pr-1">
-            <div className="text-orange-600 truncate">2 giờ trước</div>
+            {getStat('hai-phong', 'food').latestTime ? (
+              <>
+                <div>{getTimeAgo(getStat('hai-phong', 'food').latestTime)}</div>
+                <div className="text-orange-600 truncate">{getStat('hai-phong', 'food').latestTitle}</div>
+              </>
+            ) : (
+              <div className="text-orange-600 truncate">Chưa có</div>
+            )}
           </div>
         </div>
 
@@ -176,7 +210,14 @@ export default async function Home() {
             <div><span className="font-semibold">{getStat('ho-chi-minh', 'food').posts}</span> Quán</div>
           </div>
           <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 pr-1">
-            <div className="text-orange-600 truncate">Hôm qua</div>
+            {getStat('ho-chi-minh', 'food').latestTime ? (
+              <>
+                <div>{getTimeAgo(getStat('ho-chi-minh', 'food').latestTime)}</div>
+                <div className="text-orange-600 truncate">{getStat('ho-chi-minh', 'food').latestTitle}</div>
+              </>
+            ) : (
+              <div className="text-orange-600 truncate">Chưa có</div>
+            )}
           </div>
         </div>
       </div>
