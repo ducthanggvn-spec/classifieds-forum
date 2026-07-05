@@ -32,8 +32,9 @@ export default function DeletePostButton({ postId, citySlug, currentUser, iconOn
     }
 
     setLoading(true);
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
     try {
-      const res = await fetch(`/api/admin/posts/${postId}`, {
+      const res = await fetch(`${API_URL}/admin/posts/${postId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

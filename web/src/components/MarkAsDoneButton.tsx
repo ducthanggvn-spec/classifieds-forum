@@ -18,8 +18,9 @@ export default function MarkAsDoneButton({ postId, currentUserUid }: MarkAsDoneB
     }
 
     setLoading(true);
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
     try {
-      const res = await fetch(`/api/posts/${postId}/done`, {
+      const res = await fetch(`${API_URL}/posts/${postId}/done`, {
         method: "PUT",
         headers: {
           "x-supabase-uid": currentUserUid,
