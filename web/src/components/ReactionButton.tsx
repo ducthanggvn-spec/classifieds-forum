@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface ReactionButtonProps {
   targetType: "post" | "comment";
@@ -13,6 +13,18 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
   const [isHovered, setIsHovered] = useState(false);
   const [reactions, setReactions] = useState(initialReactions);
   const [isLoading, setIsLoading] = useState(false);
+  const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false);
+    }, 300);
+  };
 
   const EMOJIS = [
     { type: "like", icon: "👍", label: "Thích", color: "text-blue-600" },
@@ -72,8 +84,8 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
   return (
     <div 
       className="relative flex items-center"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <button 
         onClick={() => handleReact("like")}
@@ -91,7 +103,8 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
 
       {/* Popup chọn cảm xúc */}
       {isHovered && (
-        <div className="absolute bottom-full left-0 mb-1 bg-white dark:bg-primary border border-border rounded-full shadow-lg p-1 flex gap-1 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div className="absolute bottom-full left-0 pb-2 z-50">
+          <div className="bg-white dark:bg-primary border border-border rounded-full shadow-lg p-1 flex gap-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
           {EMOJIS.map((emoji) => (
             <button
               key={emoji.type}
@@ -105,6 +118,7 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
               {emoji.icon}
             </button>
           ))}
+          </div>
         </div>
       )}
     </div>
