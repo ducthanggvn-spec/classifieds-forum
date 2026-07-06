@@ -19,7 +19,10 @@ export default function ProfileForm({ dbUser }: { dbUser: any }) {
       setError(result.error);
     } else if (result?.success) {
       setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000); // Tắt thông báo sau 3 giây
+      setTimeout(() => {
+        setSuccess(false);
+        window.location.reload();
+      }, 1500); // Tắt thông báo và tải lại trang sau 1.5 giây
     }
     setLoading(false);
   };

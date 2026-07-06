@@ -29,7 +29,7 @@ export default function ProfilePage() {
       setUser(user);
 
       try {
-        const res = await fetch(`${API_URL}/users/${user.id}`);
+        const res = await fetch(`${API_URL}/users/${user.id}`, { cache: "no-store" });
         const userData = await res.json();
         setDbUser(userData);
 
