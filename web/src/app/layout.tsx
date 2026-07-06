@@ -8,7 +8,7 @@ import { createClient } from "@/utils/supabase/server";
 import { logout } from "@/app/login/actions";
 import NotificationBell from "@/components/NotificationBell";
 
-const inter = Inter({ subsets: ["latin", "vietnamese"], variable: "--font-inter" });
+const inter = Inter({ subsets: ["latin", "vietnamese"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Diễn đàn TTVNOL",
@@ -27,12 +27,18 @@ export default async function RootLayout({
   if (user) {
     const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
     try {
-      const userRes = await fetch(`${API_URL}/users/${user.id}`, { cache: "no-store" });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1500); // 1.5 giây timeout để không treo trang web
+      const userRes = await fetch(`${API_URL}/users/${user.id}`, { 
+        cache: "no-store",
+        signal: controller.signal 
+      });
+      clearTimeout(timeoutId);
       if (userRes.ok) {
         dbUser = await userRes.json();
       }
     } catch (e) {
-      console.error("Lỗi fetch user ở layout:", e);
+      console.error("Lỗi fetch user ở layout (có thể do timeout/backend ngủ đông):", e);
     }
   }
 

@@ -87,6 +87,7 @@ model Post {
   @@index([categoryId])
   @@index([createdAt])
   @@index([lastBumpedAt])
+  @@index([isPinned(sort: Desc), lastBumpedAt(sort: Desc)])
 }
 
 model PostImage {
