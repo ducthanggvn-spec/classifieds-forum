@@ -75,7 +75,8 @@ router.put('/:id', async (req, res) => {
       data: { 
         fullName, 
         birthYear: birthYear ? parseInt(birthYear) : null, 
-        phone
+        phone,
+        signature
       }
     });
     res.json({ success: true, user: updatedUser });

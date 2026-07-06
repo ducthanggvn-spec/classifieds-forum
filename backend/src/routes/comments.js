@@ -27,7 +27,8 @@ router.get('/:postId', async (req, res) => {
             avatarUrl: true, 
             role: true, 
             postCount: true, 
-            createdAt: true 
+            createdAt: true,
+            signature: true
           } 
         }
       },
@@ -87,7 +88,7 @@ router.post('/', async (req, res) => {
       where: { postId: parseInt(postId) },
       orderBy: { createdAt: 'desc' },
       include: {
-        user: { select: { nickname: true, avatarUrl: true, role: true, postCount: true, createdAt: true } }
+        user: { select: { nickname: true, avatarUrl: true, role: true, postCount: true, createdAt: true, signature: true } }
       }
     });
 
@@ -106,7 +107,7 @@ router.post('/', async (req, res) => {
         where: { id: lastComment.id },
         data: { content: mergedContent },
         include: {
-          user: { select: { nickname: true, avatarUrl: true, role: true, postCount: true, createdAt: true } }
+          user: { select: { nickname: true, avatarUrl: true, role: true, postCount: true, createdAt: true, signature: true } }
         }
       });
     } else {
@@ -124,7 +125,8 @@ router.post('/', async (req, res) => {
               avatarUrl: true,
               role: true,
               postCount: true,
-              createdAt: true
+              createdAt: true,
+              signature: true
             }
           }
         }

@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
       prisma.post.findMany({
         where: whereClause,
         include: {
-          user: { select: { nickname: true, avatarUrl: true, fullName: true, role: true, postCount: true } },
+          user: { select: { nickname: true, avatarUrl: true, fullName: true, role: true, postCount: true, signature: true } },
           city: { select: { name: true, slug: true } },
           comments: {
             orderBy: { createdAt: 'desc' },
@@ -135,7 +135,7 @@ router.get('/:id', async (req, res) => {
     const post = await prisma.post.findUnique({
       where: { id: postId },
       include: {
-        user: { select: { nickname: true, avatarUrl: true, role: true, postCount: true, createdAt: true, supabaseUid: true } },
+        user: { select: { nickname: true, avatarUrl: true, role: true, postCount: true, createdAt: true, supabaseUid: true, signature: true } },
         city: { select: { name: true, slug: true } },
         // Thêm comments nếu cần thiết sau này
       },
