@@ -73,13 +73,18 @@ export default function NotificationBell({ currentUserDbId }: { currentUserDbId:
   };
 
   const getTargetUrl = (notification: any) => {
+    // Ưu tiên targetUrl được trả về sẵn từ Backend mới cập nhật
+    if (notification.targetUrl) {
+      return notification.targetUrl;
+    }
+    
+    // Logic fallback cũ nếu chưa có
     switch (notification.type) {
       case 'LIKE_POST':
       case 'COMMENT':
       case 'REPLY':
       case 'LIKE_COMMENT':
-        // Cần URL chính xác nhưng tạm thời trỏ về trang chủ hoặc inbox nếu chưa có slug
-        return `/`; // Sẽ cần API trả về citySlug và postId
+        return `/`; 
       case 'INBOX':
         return `/inbox/${notification.targetId}`;
       default:

@@ -15,7 +15,38 @@ router.get('/:userId', async (req, res) => {
       }
     });
 
-    res.json({ success: true, data: notifications });
+    // Lấy citySlug cho các thông báo liên quan đến bài viết
+    const postIds = notifications
+      .filter(n => ['LIKE_POST', 'COMMENT', 'REPLY', 'LIKE_COMMENT'].includes(n.type) && n.targetId)
+      .map(n => n.targetId);
+
+    let postMap = {};
+    if (postIds.length > 0) {
+      const posts = await prisma.post.findMany({
+        where: { id: { in: postIds } },
+        include: { city: { select: { slug: true } } }
+      });
+      posts.forEach(p => {
+        if (p.city) postMap[p.id] = p.city.slug;
+      });
+    }
+
+    const enrichedNotifications = notifications.map(n => {
+      let targetUrl = '#';
+      if (['LIKE_POST', 'COMMENT', 'REPLY', 'LIKE_COMMENT'].includes(n.type) && n.targetId) {
+        const citySlug = postMap[n.targetId];
+        if (citySlug) {
+          targetUrl = `/${citySlug}/post/${n.targetId}`;
+        } else {
+          targetUrl = `/`;
+        }
+      } else if (n.type === 'INBOX' && n.targetId) {
+        targetUrl = `/inbox/${n.targetId}`;
+      }
+      return { ...n, targetUrl };
+    });
+
+    res.json({ success: true, data: enrichedNotifications });
   } catch (error) {
     console.error("Lỗi lấy notifications:", error);
     res.status(500).json({ error: "Server error" });
