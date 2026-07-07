@@ -140,8 +140,8 @@ router.get('/logs', requireAdminOrMod, async (req, res) => {
   }
 });
 
-// Ghim/Bỏ ghim bài viết (Admin/Mod)
-router.put('/posts/:id/pin', requireAdminOrMod, async (req, res) => {
+// Ghim/Bỏ ghim bài viết (Chỉ Admin)
+router.put('/posts/:id/pin', requireAdmin, async (req, res) => {
   try {
     const postId = parseInt(req.params.id);
     const { isPinned } = req.body; // true hoặc false

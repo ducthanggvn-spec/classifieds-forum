@@ -15,8 +15,8 @@ export default function PinPostButton({ postId, isPinned, currentUser, citySlug,
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Chỉ Admin hoặc Mod mới thấy nút này
-  if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'mod')) {
+  // Chỉ Admin mới thấy nút này
+  if (!currentUser || currentUser.role !== 'admin') {
     return null;
   }
 
