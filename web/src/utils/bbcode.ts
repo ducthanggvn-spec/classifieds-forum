@@ -1,10 +1,10 @@
 export function parseBBCode(text: string) {
   if (!text) return "";
   let html = text
-    .replace(/\[b\]([\s\S]*?)\[\/b\]/gi, "<strong>$1</strong>")
-    .replace(/\[i\]([\s\S]*?)\[\/i\]/gi, "<em>$1</em>")
-    .replace(/\[u\]([\s\S]*?)\[\/u\]/gi, "<u>$1</u>")
-    .replace(/\[s\]([\s\S]*?)\[\/s\]/gi, "<del>$1</del>")
+    .replace(/\[b\]([\s\S]*?)\[\/b\]/gi, "<strong class='font-bold'>$1</strong>")
+    .replace(/\[i\]([\s\S]*?)\[\/i\]/gi, "<em class='italic'>$1</em>")
+    .replace(/\[u\]([\s\S]*?)\[\/u\]/gi, "<u class='underline'>$1</u>")
+    .replace(/\[s\]([\s\S]*?)\[\/s\]/gi, "<del class='line-through'>$1</del>")
     .replace(/\[color=(.*?)\]([\s\S]*?)\[\/color\]/gi, "<span style='color:$1'>$2</span>")
     .replace(/\[size=(.*?)\]([\s\S]*?)\[\/size\]/gi, (match, size, content) => {
       const sizeMap: Record<string, string> = {
