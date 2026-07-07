@@ -51,6 +51,40 @@ router.put('/users/:id/role', requireAdmin, async (req, res) => {
   }
 });
 
+// Chỉnh sửa Nickname, Email của thành viên (Chỉ Admin)
+router.put('/users/:id/profile', requireAdmin, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { nickname, email } = req.body;
+
+    if (!nickname || !email) {
+      return res.status(400).json({ success: false, error: 'Nickname và Email không được để trống' });
+    }
+
+    // Kiểm tra xem nickname có bị trùng với người khác không
+    const existingUser = await prisma.user.findFirst({
+      where: { 
+        nickname, 
+        id: { not: userId } 
+      }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ success: false, error: 'Nickname này đã có người sử dụng. Vui lòng chọn tên khác.' });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { nickname, email }
+    });
+
+    res.json({ success: true, message: 'Đã cập nhật thông tin thành công', user: updatedUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Lỗi khi cập nhật thông tin người dùng' });
+  }
+});
+
 // Xóa/Ẩn bài đăng (Admin/Mod)
 router.delete('/posts/:id', requireAdminOrMod, async (req, res) => {
   try {

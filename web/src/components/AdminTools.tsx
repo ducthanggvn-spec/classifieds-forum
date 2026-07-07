@@ -11,6 +11,10 @@ export default function AdminTools({ currentUser }: { currentUser: any }) {
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const [editingUserId, setEditingUserId] = useState<number | null>(null);
+  const [editNickname, setEditNickname] = useState("");
+  const [editEmail, setEditEmail] = useState("");
 
   useEffect(() => {
     fetchLogs(); // Admin và Mod đều xem được log
@@ -69,6 +73,30 @@ export default function AdminTools({ currentUser }: { currentUser: any }) {
       const data = await res.json();
       if (data.success) {
         alert("Đổi quyền thành công");
+        fetchUsers();
+      } else {
+        alert("Lỗi: " + data.error);
+      }
+    } catch (err) {
+      alert("Lỗi kết nối");
+    }
+  };
+
+  const handleUpdateProfile = async (userId: number) => {
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+      const res = await fetch(`${API_URL}/admin/users/${userId}/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "x-supabase-uid": currentUser.supabaseUid,
+        },
+        body: JSON.stringify({ nickname: editNickname, email: editEmail }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Cập nhật thông tin thành công");
+        setEditingUserId(null);
         fetchUsers();
       } else {
         alert("Lỗi: " + data.error);
@@ -163,8 +191,32 @@ export default function AdminTools({ currentUser }: { currentUser: any }) {
                       className={`text-sm border-b border-border transition-colors ${u.id !== currentUser.id ? 'cursor-pointer' : ''} ${selectedUserId === u.id ? 'bg-blue-50 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-primary/50'}`}
                     >
                       <td className="py-2 px-4">{u.id}</td>
-                      <td className={`py-2 px-4 font-bold ${selectedUserId === u.id ? 'text-blue-700 dark:text-blue-300' : 'text-accent'}`}>{u.nickname}</td>
-                      <td className="py-2 px-4">{u.email}</td>
+                      <td className={`py-2 px-4 ${selectedUserId === u.id ? 'text-blue-700 dark:text-blue-300' : 'text-accent'}`}>
+                        {editingUserId === u.id ? (
+                          <input 
+                            type="text" 
+                            value={editNickname} 
+                            onChange={(e) => setEditNickname(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="border p-1 text-xs w-full text-black rounded"
+                          />
+                        ) : (
+                          <span className="font-bold">{u.nickname}</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-4">
+                        {editingUserId === u.id ? (
+                          <input 
+                            type="email" 
+                            value={editEmail} 
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="border p-1 text-xs w-full text-black rounded"
+                          />
+                        ) : (
+                          u.email
+                        )}
+                      </td>
                       <td className="py-2 px-4">
                         <span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'admin' ? 'bg-red-100 text-red-700' : u.role === 'mod' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
                           {u.role.toUpperCase()}
@@ -173,6 +225,11 @@ export default function AdminTools({ currentUser }: { currentUser: any }) {
                       <td className="py-2 px-4">
                         {u.id === currentUser.id ? (
                           <span className="text-gray-400 text-xs italic">Bạn</span>
+                        ) : editingUserId === u.id ? (
+                          <div className="flex gap-2">
+                            <button onClick={(e) => { e.stopPropagation(); handleUpdateProfile(u.id); }} className="bg-green-500 text-white px-2 py-1 rounded text-xs">Lưu</button>
+                            <button onClick={(e) => { e.stopPropagation(); setEditingUserId(null); }} className="bg-gray-500 text-white px-2 py-1 rounded text-xs">Hủy</button>
+                          </div>
                         ) : selectedUserId === u.id ? (
                           <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-2">
                             <select 
@@ -181,10 +238,19 @@ export default function AdminTools({ currentUser }: { currentUser: any }) {
                               onClick={(e) => e.stopPropagation()}
                               className="border border-blue-300 p-1 rounded text-xs dark:bg-primary text-blue-900 dark:text-white ring-2 ring-blue-500/20 focus:outline-none"
                             >
-                              <option value="user">USER (Thành viên)</option>
-                              <option value="mod">MOD (Quản lý)</option>
-                              <option value="admin">ADMIN (Quản trị)</option>
+                              <option value="user">USER</option>
+                              <option value="mod">MOD</option>
+                              <option value="admin">ADMIN</option>
                             </select>
+                            <button 
+                              onClick={(e) => { 
+                                e.stopPropagation(); 
+                                setEditingUserId(u.id);
+                                setEditNickname(u.nickname);
+                                setEditEmail(u.email);
+                              }} 
+                              className="text-xs text-blue-600 underline"
+                            >Sửa Profile</button>
                           </div>
                         ) : (
                           <span className="text-gray-400 text-xs hover:text-blue-500">Chỉ định ✎</span>
