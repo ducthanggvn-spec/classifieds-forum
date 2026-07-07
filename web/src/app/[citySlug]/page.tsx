@@ -52,7 +52,7 @@ export default async function CityMarketPage({
   if (page) queryParams.append('page', page);
   if (category === 'food') queryParams.append('categoryId', '2');
 
-  const res = await fetch(`${API_URL}/posts?${queryParams.toString()}`, { cache: 'no-store' });
+  const res = await fetch(`${API_URL}/posts?${queryParams.toString()}`, { next: { revalidate: 15 } });
   const result = res.ok ? await res.json() : { success: false, data: [], pagination: { totalPages: 1, currentPage: 1 } };
   const posts = result.success ? result.data : [];
   const pinnedPosts = posts.filter((p: any) => p.isPinned);

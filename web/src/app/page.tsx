@@ -6,7 +6,7 @@ export default async function Home() {
   
   let stats = null;
   try {
-    const res = await fetch(`${API_URL}/stats`, { cache: 'no-store' });
+    const res = await fetch(`${API_URL}/stats`, { next: { revalidate: 60 } });
     if (res.ok) {
       const result = await res.json();
       if (result.success) stats = result.data;

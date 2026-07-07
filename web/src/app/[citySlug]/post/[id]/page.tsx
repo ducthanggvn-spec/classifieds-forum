@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ citySlug:
       const post = result.data;
       
       // Lấy ảnh đầu tiên từ nội dung nếu có
-      let imageUrl = "https://ttvnol.com/default-og.jpg"; // Fallback
+      let imageUrl = "https://ttvnol.site/default-og.jpg"; // Fallback
       const imgMatch = post.description.match(/\[img\](.*?)\[\/img\]/i);
       if (imgMatch && imgMatch[1]) {
         imageUrl = imgMatch[1];

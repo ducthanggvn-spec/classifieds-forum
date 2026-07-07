@@ -104,7 +104,7 @@ export default function EditPostPage({ params }: { params: Promise<{ citySlug: s
       setError(result.error);
       setSubmitting(false);
     } else if (result?.success) {
-      let timeLeft = 3;
+      let timeLeft = 1;
       setSuccessCountdown(timeLeft);
       const timer = setInterval(() => {
         timeLeft -= 1;
@@ -123,8 +123,8 @@ export default function EditPostPage({ params }: { params: Promise<{ citySlug: s
   return (
     <div className="max-w-3xl mx-auto space-y-6 relative">
       {successCountdown !== null && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-primary p-8 rounded-lg shadow-xl text-center max-w-md w-full animate-bounce">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white/90 dark:bg-primary/90 backdrop-blur-md p-6 rounded-lg shadow-xl text-center max-w-sm w-[90%] animate-bounce border border-white/20">
             <div className="text-5xl mb-4">✅</div>
             <h2 className="text-2xl font-bold text-primary dark:text-white mb-2">Sửa bài thành công!</h2>
             <div className="mt-6 text-sm font-bold text-accent">
