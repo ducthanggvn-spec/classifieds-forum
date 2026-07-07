@@ -2,10 +2,20 @@
 
 import Link from "next/link";
 import { login, signup } from "./actions";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('tab') === 'register') {
+        setIsLogin(false);
+      }
+    }
+  }, []);
+
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
