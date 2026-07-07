@@ -52,7 +52,7 @@ export default function TopicListItem({ post, citySlug, currentUser }: { post: a
         <Link 
           href={`/${citySlug}/post/${post.id}`} 
           onClick={handleTopicClick}
-          className={`block truncate text-sm leading-tight ${isUnread || post.isPinned ? 'font-bold text-[#1e4471] dark:text-blue-400' : 'font-normal text-[#1e4471] dark:text-blue-300'} hover:underline`}
+          className={`line-clamp-2 text-sm leading-tight ${isUnread || post.isPinned ? 'font-bold text-[#1e4471] dark:text-blue-400' : 'font-normal text-[#1e4471] dark:text-blue-300'} hover:underline`}
         >
           {post.status === 'archived' ? (
             <span className="text-gray-500 font-bold mr-1 line-through">[Đã Xong]</span>
