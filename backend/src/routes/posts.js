@@ -13,24 +13,43 @@ router.get('/', async (req, res) => {
     const skip = (currentPage - 1) * limit;
 
     const whereClause = {};
-    
-    if (req.query.categoryId) {
-      whereClause.categoryId = parseInt(req.query.categoryId);
-    }
-
     if (citySlug && citySlug !== 'all') {
       whereClause.city = { slug: citySlug };
     }
 
-    if (type && (type === 'sell' || type === 'buy' || type === 'eat' || type === 'drink' || type === 'general')) {
-      whereClause.listingType = type;
-    }
-
-    if (q) {
-      whereClause.OR = [
+    const searchCondition = q ? {
+      OR: [
         { title: { contains: q, mode: 'insensitive' } },
         { description: { contains: q, mode: 'insensitive' } },
-      ];
+      ]
+    } : null;
+
+    const filterConditions = {};
+    let hasFilter = false;
+
+    if (req.query.categoryId) {
+      filterConditions.categoryId = parseInt(req.query.categoryId);
+      hasFilter = true;
+    }
+
+    if (type && (type === 'sell' || type === 'buy' || type === 'eat' || type === 'drink' || type === 'general')) {
+      filterConditions.listingType = type;
+      hasFilter = true;
+    }
+
+    const categoryCondition = hasFilter ? {
+      OR: [
+        filterConditions,
+        { isPinned: true } // Bài ghim luôn hiển thị ở tất cả các tab trong cùng 1 thị trường
+      ]
+    } : null;
+
+    if (searchCondition && categoryCondition) {
+      whereClause.AND = [searchCondition, categoryCondition];
+    } else if (searchCondition) {
+      whereClause.OR = searchCondition.OR;
+    } else if (categoryCondition) {
+      whereClause.OR = categoryCondition.OR;
     }
 
     const [posts, totalCount] = await Promise.all([
