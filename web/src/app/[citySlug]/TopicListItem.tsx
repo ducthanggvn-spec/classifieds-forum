@@ -65,7 +65,6 @@ export default function TopicListItem({ post, citySlug, currentUser }: { post: a
             </>
           )}
           <span className={post.status === 'archived' ? 'text-gray-500 line-through' : ''}>
-            {post.isPinned && <span className="text-amber-600 dark:text-amber-500 font-bold mr-1">[Chú ý]</span>}
             {post.title}
           </span>
         </Link>
