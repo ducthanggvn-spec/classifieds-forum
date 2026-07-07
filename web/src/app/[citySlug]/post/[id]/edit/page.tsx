@@ -211,19 +211,23 @@ export default function EditPostPage({ params }: { params: Promise<{ citySlug: s
                 <option value="3">Vừa (3)</option>
                 <option value="4">Lớn (4)</option>
               </select>
-              <select onChange={(e) => {if(e.target.value) insertBBCode(`color=${e.target.value}`); e.target.value='';}} className="bg-white dark:bg-muted border border-border rounded px-2 py-1 text-sm focus:outline-none cursor-pointer">
-                <option value="">Màu chữ</option>
-                <option value="red" className="text-red-600">Đỏ</option>
-                <option value="blue" className="text-blue-600">Xanh</option>
-                <option value="green" className="text-green-600">Xanh lá</option>
-              </select>
-              <span className="w-px h-5 bg-border mx-1"></span>
-              <button type="button" onClick={() => insertBBCode('align=center')} className="px-2 py-1 bg-white dark:bg-muted border border-border rounded hover:bg-gray-100 text-sm" title="Căn giữa">Giữa</button>
-            </div>
-            
-            <div className="flex flex-wrap items-center gap-1">
-              <button type="button" onClick={() => insertBBCode('b')} className="w-8 h-8 flex items-center justify-center bg-white dark:bg-muted border border-border rounded hover:bg-gray-100 font-bold text-sm">B</button>
-              <button type="button" onClick={() => insertBBCode('i')} className="w-8 h-8 flex items-center justify-center bg-white dark:bg-muted border border-border rounded hover:bg-gray-100 italic font-serif text-sm">I</button>
+              <button type="button" onClick={() => insertBBCode('b')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded font-bold text-gray-700 dark:text-gray-300 text-sm">B</button>
+              <button type="button" onClick={() => insertBBCode('i')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded italic font-serif text-gray-700 dark:text-gray-300 text-sm">I</button>
+              <button type="button" onClick={() => insertBBCode('u')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded underline text-gray-700 dark:text-gray-300 text-sm">U</button>
+              <button type="button" onClick={() => insertBBCode('s')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded line-through text-gray-700 dark:text-gray-300 text-sm">S</button>
+              
+              <span className="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1"></span>
+              
+              <button type="button" onClick={() => insertBBCode('size=4')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded text-gray-700 dark:text-gray-300 text-sm font-bold" title="Chữ to">T</button>
+              <button type="button" onClick={() => insertBBCode('color=red')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded text-red-600 text-sm font-bold" title="Chữ đỏ">A</button>
+              
+              <span className="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1"></span>
+              
+              <button type="button" onClick={() => insertBBCode('align=center')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded text-gray-700 dark:text-gray-300 text-sm" title="Căn giữa">≡</button>
+              <button type="button" onClick={() => insertBBCode('quote')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded text-gray-700 dark:text-gray-300 text-[10px]" title="Trích dẫn">""</button>
+              <button type="button" onClick={() => insertBBCode('url')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded text-gray-700 dark:text-gray-300 text-xs" title="Chèn Link">🔗</button>
+              <button type="button" onClick={() => insertBBCode('youtube')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded text-gray-700 dark:text-gray-300 text-xs" title="Chèn Youtube">▶️</button>
+
               <span className="w-px h-5 bg-border mx-1"></span>
               
               <input 

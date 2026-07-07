@@ -228,19 +228,26 @@ export default function CreatePostPage({ params }: { params: Promise<{ citySlug:
                 <option value="purple" className="text-purple-600">Tím</option>
               </select>
               <span className="w-px h-5 bg-border mx-1"></span>
-              <button type="button" onClick={() => insertBBCode('align=left')} className="px-2 py-1 bg-white dark:bg-muted border border-border rounded hover:bg-gray-100 text-sm" title="Căn trái">Trái</button>
-              <button type="button" onClick={() => insertBBCode('align=center')} className="px-2 py-1 bg-white dark:bg-muted border border-border rounded hover:bg-gray-100 text-sm" title="Căn giữa">Giữa</button>
-              <button type="button" onClick={() => insertBBCode('align=right')} className="px-2 py-1 bg-white dark:bg-muted border border-border rounded hover:bg-gray-100 text-sm" title="Căn phải">Phải</button>
+              <button type="button" onClick={() => insertBBCode('b')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded font-bold text-gray-700 dark:text-gray-300 text-sm">B</button>
+              <button type="button" onClick={() => insertBBCode('i')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded italic font-serif text-gray-700 dark:text-gray-300 text-sm">I</button>
+              <button type="button" onClick={() => insertBBCode('u')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded underline text-gray-700 dark:text-gray-300 text-sm">U</button>
+              <button type="button" onClick={() => insertBBCode('s')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded line-through text-gray-700 dark:text-gray-300 text-sm">S</button>
+              
+              <span className="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1"></span>
+              
+              <button type="button" onClick={() => insertBBCode('size=4')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded text-gray-700 dark:text-gray-300 text-sm font-bold" title="Chữ to">T</button>
+              <button type="button" onClick={() => insertBBCode('color=red')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded text-red-600 text-sm font-bold" title="Chữ đỏ">A</button>
+              
+              <span className="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1"></span>
+              
+              <button type="button" onClick={() => insertBBCode('align=center')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded text-gray-700 dark:text-gray-300 text-sm" title="Căn giữa">≡</button>
+              <button type="button" onClick={() => insertBBCode('quote')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded text-gray-700 dark:text-gray-300 text-[10px]" title="Trích dẫn">""</button>
+              <button type="button" onClick={() => insertBBCode('url')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded text-gray-700 dark:text-gray-300 text-xs" title="Chèn Link">🔗</button>
+              <button type="button" onClick={() => insertBBCode('youtube')} className="w-7 h-7 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-muted rounded text-gray-700 dark:text-gray-300 text-xs" title="Chèn Youtube">▶️</button>
             </div>
             
             {/* Hàng 2: Format & Media */}
             <div className="flex flex-wrap items-center gap-1">
-              <button type="button" onClick={() => insertBBCode('b')} className="w-8 h-8 flex items-center justify-center bg-white dark:bg-muted border border-border rounded hover:bg-gray-100 font-bold text-sm">B</button>
-              <button type="button" onClick={() => insertBBCode('i')} className="w-8 h-8 flex items-center justify-center bg-white dark:bg-muted border border-border rounded hover:bg-gray-100 italic font-serif text-sm">I</button>
-              <button type="button" onClick={() => insertBBCode('u')} className="w-8 h-8 flex items-center justify-center bg-white dark:bg-muted border border-border rounded hover:bg-gray-100 underline text-sm">U</button>
-              <button type="button" onClick={() => insertBBCode('s')} className="w-8 h-8 flex items-center justify-center bg-white dark:bg-muted border border-border rounded hover:bg-gray-100 line-through text-sm">S</button>
-              <span className="w-px h-5 bg-border mx-1"></span>
-              
               <input 
                 type="file" 
                 accept="image/*" 
