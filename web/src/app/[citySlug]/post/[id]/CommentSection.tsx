@@ -45,6 +45,7 @@ export default function CommentSection({
   const [messageRecipient, setMessageRecipient] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (!postLastBumpedAt) return;
@@ -72,7 +73,25 @@ export default function CommentSection({
   }, [postLastBumpedAt]);
 
   const insertBBCode = (tag: string) => {
-    setContent((prev) => `${prev}[${tag}][/${tag}]`);
+    if (!textareaRef.current) {
+      setContent((prev) => `${prev}[${tag}][/${tag}]`);
+      return;
+    }
+    const textarea = textareaRef.current;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
+    const newText = content.substring(0, start) + `[${tag}]${selectedText}[/${tag}]` + content.substring(end);
+    setContent(newText);
+    
+    setTimeout(() => {
+      textarea.focus();
+      if (start === end) {
+        textarea.setSelectionRange(start + tag.length + 2, start + tag.length + 2);
+      } else {
+        textarea.setSelectionRange(start, end + tag.length * 2 + 5);
+      }
+    }, 0);
   };
 
   const handleQuote = (nickname: string, originalContent: string) => {
@@ -382,6 +401,7 @@ export default function CommentSection({
                     
                     {/* Textarea */}
                     <textarea
+                      ref={textareaRef}
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
                       rows={4}

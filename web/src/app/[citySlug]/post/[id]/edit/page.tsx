@@ -22,6 +22,7 @@ export default function EditPostPage({ params }: { params: Promise<{ citySlug: s
   const [successCountdown, setSuccessCountdown] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     // Fetch post data
@@ -48,7 +49,25 @@ export default function EditPostPage({ params }: { params: Promise<{ citySlug: s
   }, [postId]);
 
   const insertBBCode = (tag: string) => {
-    setContent((prev) => `${prev}[${tag}][/${tag}]`);
+    if (!textareaRef.current) {
+      setContent((prev) => `${prev}[${tag}][/${tag}]`);
+      return;
+    }
+    const textarea = textareaRef.current;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
+    const newText = content.substring(0, start) + `[${tag}]${selectedText}[/${tag}]` + content.substring(end);
+    setContent(newText);
+    
+    setTimeout(() => {
+      textarea.focus();
+      if (start === end) {
+        textarea.setSelectionRange(start + tag.length + 2, start + tag.length + 2);
+      } else {
+        textarea.setSelectionRange(start, end + tag.length * 2 + 5);
+      }
+    }, 0);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -250,6 +269,7 @@ export default function EditPostPage({ params }: { params: Promise<{ citySlug: s
           </div>
           
           <textarea
+            ref={textareaRef}
             name="content"
             required
             rows={10}
