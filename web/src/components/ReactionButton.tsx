@@ -119,7 +119,7 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
         
         {/* Tooltip hiển thị tên người thích hiện nhanh */}
         {reactions.length > 0 && tooltipText && (
-          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block w-max max-w-[200px] bg-black/80 text-white text-[10px] py-1 px-2 rounded shadow-lg z-50 break-words whitespace-normal text-center pointer-events-none">
+          <span className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block w-max max-w-[200px] bg-black/80 text-white text-[10px] py-1 px-2 rounded shadow-lg z-50 break-words whitespace-normal text-center pointer-events-none">
             {tooltipText}
           </span>
         )}
