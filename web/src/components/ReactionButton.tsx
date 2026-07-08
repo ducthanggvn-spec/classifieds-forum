@@ -99,52 +99,54 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
   const tooltipText = getTooltipText();
 
   return (
-    <div 
-      className="relative flex items-center"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <button 
-        onClick={() => handleReact("like")}
-        disabled={isLoading}
-        className={`relative group hover:bg-gray-100 dark:hover:bg-muted/50 px-2 py-1 rounded transition-colors flex items-center gap-1 ${currentReaction ? currentReaction.color : 'text-gray-500 dark:text-gray-400'}`}
-      >
-        <span className="text-sm">{currentReaction ? currentReaction.icon : "👍"}</span> 
-        <span className="text-xs font-bold">{currentReaction ? currentReaction.label : "Thích"}</span>
-        {reactions.length > 0 && (
-          <span className="ml-1 text-[10px] bg-gray-200 dark:bg-gray-700 px-1.5 rounded-full text-gray-700 dark:text-gray-300">
-            {reactions.length}
-          </span>
-        )}
-        
-        {/* Tooltip hiển thị tên người thích hiện nhanh */}
-        {reactions.length > 0 && tooltipText && (
-          <span className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block w-max max-w-[200px] bg-black/80 text-white text-[10px] py-1 px-2 rounded shadow-lg z-50 break-words whitespace-normal text-center pointer-events-none">
-            {tooltipText}
-          </span>
-        )}
-      </button>
-
-      {/* Popup chọn cảm xúc */}
-      {isHovered && (
-        <div className="absolute bottom-full left-0 pb-2 z-50">
-          <div className="bg-white dark:bg-primary border border-border rounded-full shadow-lg p-1 flex gap-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
-          {EMOJIS.map((emoji) => (
-            <button
-              key={emoji.type}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleReact(emoji.type);
-              }}
-              className="w-8 h-8 flex items-center justify-center text-xl hover:scale-125 transition-transform origin-bottom"
-              title={emoji.label}
-            >
-              {emoji.icon}
-            </button>
-          ))}
-          </div>
-        </div>
+    <div className="flex items-center gap-2">
+      {/* Liệt kê tên người thích (hiển thị luôn thay vì tooltip đen) */}
+      {reactions.length > 0 && tooltipText && (
+        <span className="text-[11px] text-gray-500 dark:text-gray-400 italic truncate max-w-[120px] sm:max-w-[250px]" title={tooltipText}>
+          {tooltipText}
+        </span>
       )}
+
+      <div 
+        className="relative flex items-center"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <button 
+          onClick={() => handleReact("like")}
+          disabled={isLoading}
+          className={`hover:bg-gray-100 dark:hover:bg-muted/50 px-2 py-1 rounded transition-colors flex items-center gap-1 ${currentReaction ? currentReaction.color : 'text-gray-500 dark:text-gray-400'}`}
+        >
+          <span className="text-sm">{currentReaction ? currentReaction.icon : "👍"}</span> 
+          <span className="text-xs font-bold">{currentReaction ? currentReaction.label : "Thích"}</span>
+          {reactions.length > 0 && (
+            <span className="ml-1 text-[10px] bg-gray-200 dark:bg-gray-700 px-1.5 rounded-full text-gray-700 dark:text-gray-300">
+              {reactions.length}
+            </span>
+          )}
+        </button>
+
+        {/* Popup chọn cảm xúc */}
+        {isHovered && (
+          <div className="absolute bottom-full left-0 pb-2 z-50">
+            <div className="bg-white dark:bg-primary border border-border rounded-full shadow-lg p-1 flex gap-1 animate-in fade-in slide-in-from-bottom-2 duration-200">
+            {EMOJIS.map((emoji) => (
+              <button
+                key={emoji.type}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReact(emoji.type);
+                }}
+                className="w-8 h-8 flex items-center justify-center text-xl hover:scale-125 transition-transform origin-bottom"
+                title={emoji.label}
+              >
+                {emoji.icon}
+              </button>
+            ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
