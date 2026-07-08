@@ -156,7 +156,9 @@ router.get('/:id', async (req, res) => {
       include: {
         user: { select: { nickname: true, avatarUrl: true, role: true, postCount: true, createdAt: true, supabaseUid: true, signature: true } },
         city: { select: { name: true, slug: true } },
-        // Thêm comments nếu cần thiết sau này
+        reactions: {
+          include: { user: { select: { id: true, nickname: true } } }
+        },
       },
     });
 

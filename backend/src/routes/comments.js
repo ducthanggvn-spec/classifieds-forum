@@ -28,8 +28,12 @@ router.get('/:postId', async (req, res) => {
             role: true, 
             postCount: true, 
             createdAt: true,
-            signature: true
+            signature: true,
+            supabaseUid: true
           } 
+        },
+        reactions: {
+          include: { user: { select: { id: true, nickname: true } } }
         }
       },
       orderBy: { createdAt: 'asc' },

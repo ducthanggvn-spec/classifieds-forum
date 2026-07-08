@@ -230,7 +230,9 @@ export default async function PostDetailPage({
                 <ReactionButton 
                   targetType="post" 
                   targetId={postId} 
+                  initialReactions={post.reactions || []}
                   currentUserSupabaseUid={user?.id} 
+                  currentUserNickname={dbUser?.nickname || "Bạn"}
                 />
                 <BookmarkButton 
                   postId={postId} 

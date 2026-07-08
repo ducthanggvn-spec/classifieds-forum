@@ -7,9 +7,10 @@ interface ReactionButtonProps {
   targetId: number;
   initialReactions?: any[];
   currentUserSupabaseUid?: string;
+  currentUserNickname?: string;
 }
 
-export default function ReactionButton({ targetType, targetId, initialReactions = [], currentUserSupabaseUid }: ReactionButtonProps) {
+export default function ReactionButton({ targetType, targetId, initialReactions = [], currentUserSupabaseUid, currentUserNickname = "Bạn" }: ReactionButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [reactions, setReactions] = useState(initialReactions);
   const [isLoading, setIsLoading] = useState(false);
@@ -62,9 +63,9 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
         if (data.action === 'removed') {
           setReactions(reactions.filter(r => r.userId !== 999));
         } else if (data.action === 'updated') {
-          setReactions([{ type, userId: 999 }, ...reactions.filter(r => r.userId !== 999)]);
+          setReactions([{ type, userId: 999, user: { nickname: currentUserNickname } }, ...reactions.filter(r => r.userId !== 999)]);
         } else {
-          setReactions([{ type, userId: 999 }, ...reactions]);
+          setReactions([{ type, userId: 999, user: { nickname: currentUserNickname } }, ...reactions]);
         }
       }
     } catch (err) {
@@ -79,7 +80,23 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
     return EMOJIS.find(e => e.type === reactions[0].type) || EMOJIS[0];
   };
 
+  const getTooltipText = () => {
+    if (reactions.length === 0) return null;
+    
+    // Lấy danh sách tên người dùng (lọc bỏ null/undefined)
+    const nicknames = reactions
+      .map(r => r.user?.nickname)
+      .filter(Boolean);
+
+    if (nicknames.length === 0) return `${reactions.length} người đã thích`;
+    if (nicknames.length === 1) return `${nicknames[0]} đã thích`;
+    if (nicknames.length === 2) return `${nicknames[0]} và ${nicknames[1]} đã thích`;
+    
+    return `${nicknames[0]}, ${nicknames[1]} và ${reactions.length - 2} người khác đã thích`;
+  };
+
   const currentReaction = getPrimaryReaction();
+  const tooltipText = getTooltipText();
 
   return (
     <div 
@@ -95,8 +112,15 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
         <span className="text-sm">{currentReaction ? currentReaction.icon : "👍"}</span> 
         <span className="text-xs font-bold">{currentReaction ? currentReaction.label : "Thích"}</span>
         {reactions.length > 0 && (
-          <span className="ml-1 text-[10px] bg-gray-200 dark:bg-gray-700 px-1.5 rounded-full text-gray-700 dark:text-gray-300">
+          <span className="ml-1 text-[10px] bg-gray-200 dark:bg-gray-700 px-1.5 rounded-full text-gray-700 dark:text-gray-300 relative group">
             {reactions.length}
+            
+            {/* Tooltip hiển thị tên người thích */}
+            {tooltipText && (
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block w-max max-w-[200px] bg-black/80 text-white text-[10px] py-1 px-2 rounded shadow-lg z-50 break-words whitespace-normal text-center pointer-events-none">
+                {tooltipText}
+              </span>
+            )}
           </span>
         )}
       </button>

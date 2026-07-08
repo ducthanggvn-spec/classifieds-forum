@@ -326,7 +326,9 @@ export default function CommentSection({
                   <ReactionButton 
                     targetType="comment" 
                     targetId={comment.id} 
+                    initialReactions={comment.reactions || []}
                     currentUserSupabaseUid={currentUserSupabaseUid} 
+                    currentUserNickname={currentUser?.nickname || currentUser?.user_metadata?.nickname || "Bạn"}
                   />
                   <button 
                     onClick={() => {
