@@ -29,17 +29,29 @@ router.post('/', upload.single('image'), (req, res) => {
       return res.status(500).json({ success: false, error: 'Chưa cấu hình API Cloudinary ở Server' });
     }
 
+    const isPostImage = req.query.type === 'post';
+    const cloudinaryOptions = isPostImage 
+      ? {
+          folder: "classifieds-forum/posts", // Lưu riêng thư mục cho gọn
+          format: "webp",
+          quality: "auto",
+          width: 1200, 
+          height: 1200, 
+          crop: "limit", // Giữ nguyên tỷ lệ ảnh, chỉ thu nhỏ nếu vượt quá 1200px
+        }
+      : {
+          folder: "classifieds-forum", // Thư mục avatar cũ
+          format: "webp",
+          quality: "auto",
+          width: 800,
+          height: 800, 
+          crop: "fill", // Cắt vuông 1:1 cho avatar
+          gravity: "auto"
+        };
+
     // Upload stream trực tiếp lên Cloudinary
     const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: "classifieds-forum", // Lưu trong folder này trên Cloudinary
-        format: "webp", // Ép định dạng WebP cực nhẹ
-        quality: "auto", // Nén tự động
-        width: 800, // Thu nhỏ kích thước
-        height: 800, 
-        crop: "fill", // Cắt thành ảnh vuông (1:1)
-        gravity: "auto" // Canh tự động vào trung tâm ảnh
-      },
+      cloudinaryOptions,
       (error, result) => {
         if (error) {
           console.error("Lỗi upload Cloudinary:", error);

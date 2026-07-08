@@ -80,43 +80,60 @@ export default function CreatePostPage({ params }: { params: Promise<{ citySlug:
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-
-    if (!file.type.startsWith('image/')) {
-      alert("Vui lòng chọn file hình ảnh hợp lệ.");
-      return;
-    }
-    if (file.size > 15 * 1024 * 1024) {
-      alert("Kích thước file không được vượt quá 15MB.");
-      return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    // Giới hạn tối đa 10 ảnh mỗi lần tải
+    const filesToUpload = Array.from(files).slice(0, 10);
+    
+    for (const file of filesToUpload) {
+      if (!file.type.startsWith('image/')) {
+        alert(`File ${file.name} không phải là hình ảnh hợp lệ.`);
+        continue;
+      }
+      if (file.size > 15 * 1024 * 1024) {
+        alert(`File ${file.name} quá 15MB.`);
+        continue;
+      }
     }
 
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append('image', file);
+    let uploadedUrls: string[] = [];
 
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
-      const res = await fetch(`${API_URL}/upload`, {
-        method: "POST",
-        body: formData,
-      });
+      
+      // Upload từng ảnh một (để không bị quá tải)
+      for (const file of filesToUpload) {
+        const formData = new FormData();
+        formData.append('image', file);
+        
+        const res = await fetch(`${API_URL}/upload?type=post`, {
+          method: "POST",
+          body: formData,
+        });
 
-      const data = await res.json();
-      if (data.success && data.url) {
-        setContent((prev) => prev + `\n[img]${data.url}[/img]\n`);
+        const data = await res.json();
+        if (data.success && data.url) {
+          uploadedUrls.push(data.url);
+        } else {
+          console.error("Upload lỗi file:", file.name, data.error);
+        }
+      }
+
+      // Nối tất cả các url thành chuỗi bbcode
+      if (uploadedUrls.length > 0) {
+        const bbcodeStr = uploadedUrls.map(url => `[img]${url}[/img]`).join('\n');
+        setContent((prev) => prev + `\n${bbcodeStr}\n`);
       } else {
-        alert("Upload lỗi: " + (data.error || "Không thể tải lên máy chủ"));
+        alert("Không tải lên được ảnh nào.");
       }
     } catch (err) {
       alert("Lỗi kết nối khi tải ảnh lên");
     } finally {
       setIsUploading(false);
+      // Reset input file để có thể chọn lại ảnh vừa chọn
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -251,6 +268,7 @@ export default function CreatePostPage({ params }: { params: Promise<{ citySlug:
               <input 
                 type="file" 
                 accept="image/*" 
+                multiple
                 ref={fileInputRef} 
                 className="hidden" 
                 onChange={handleImageUpload} 
