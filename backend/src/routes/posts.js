@@ -63,7 +63,7 @@ router.get('/', async (req, res) => {
             take: 1,
             select: { user: { select: { nickname: true } } }
           },
-          _count: { select: { comments: true } }
+          _count: { select: { comments: true, reactions: true } }
         },
         orderBy: [
           { isPinned: 'desc' }, // Bài ghim luôn lên đầu

@@ -107,6 +107,7 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
       <button 
         onClick={() => handleReact("like")}
         disabled={isLoading}
+        title={tooltipText || ''}
         className={`hover:bg-gray-100 dark:hover:bg-muted/50 px-2 py-1 rounded transition-colors flex items-center gap-1 ${currentReaction ? currentReaction.color : 'text-gray-500 dark:text-gray-400'}`}
       >
         <span className="text-sm">{currentReaction ? currentReaction.icon : "👍"}</span> 
