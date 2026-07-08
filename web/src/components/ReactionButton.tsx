@@ -107,21 +107,20 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
       <button 
         onClick={() => handleReact("like")}
         disabled={isLoading}
-        title={tooltipText || ''}
-        className={`hover:bg-gray-100 dark:hover:bg-muted/50 px-2 py-1 rounded transition-colors flex items-center gap-1 ${currentReaction ? currentReaction.color : 'text-gray-500 dark:text-gray-400'}`}
+        className={`relative group hover:bg-gray-100 dark:hover:bg-muted/50 px-2 py-1 rounded transition-colors flex items-center gap-1 ${currentReaction ? currentReaction.color : 'text-gray-500 dark:text-gray-400'}`}
       >
         <span className="text-sm">{currentReaction ? currentReaction.icon : "👍"}</span> 
         <span className="text-xs font-bold">{currentReaction ? currentReaction.label : "Thích"}</span>
         {reactions.length > 0 && (
-          <span className="ml-1 text-[10px] bg-gray-200 dark:bg-gray-700 px-1.5 rounded-full text-gray-700 dark:text-gray-300 relative group">
+          <span className="ml-1 text-[10px] bg-gray-200 dark:bg-gray-700 px-1.5 rounded-full text-gray-700 dark:text-gray-300">
             {reactions.length}
-            
-            {/* Tooltip hiển thị tên người thích */}
-            {tooltipText && (
-              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block w-max max-w-[200px] bg-black/80 text-white text-[10px] py-1 px-2 rounded shadow-lg z-50 break-words whitespace-normal text-center pointer-events-none">
-                {tooltipText}
-              </span>
-            )}
+          </span>
+        )}
+        
+        {/* Tooltip hiển thị tên người thích hiện nhanh */}
+        {reactions.length > 0 && tooltipText && (
+          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block w-max max-w-[200px] bg-black/80 text-white text-[10px] py-1 px-2 rounded shadow-lg z-50 break-words whitespace-normal text-center pointer-events-none">
+            {tooltipText}
           </span>
         )}
       </button>
