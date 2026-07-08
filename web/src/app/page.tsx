@@ -28,7 +28,7 @@ export default async function Home() {
         <p className="text-gray-500 text-sm mt-1">Chọn khu vực để tham gia mua bán, trao đổi</p>
       </div>
 
-      <div className="bg-white border border-border shadow-sm">
+      <div className="bg-white dark:bg-primary border border-border shadow-sm">
         {/* Table Header */}
         <div className="grid grid-cols-12 gap-2 p-2 bg-primary text-white font-bold text-xs uppercase">
           <div className="col-span-8 md:col-span-8 pl-2">Khu vực / Thị trường</div>
@@ -130,7 +130,7 @@ export default async function Home() {
         <p className="text-gray-500 text-xs mt-1">Review, tìm kiếm và chia sẻ các địa điểm ăn uống ngon</p>
       </div>
 
-      <div className="bg-white border border-border shadow-sm">
+      <div className="bg-white dark:bg-primary border border-border shadow-sm">
         <div className="grid grid-cols-12 gap-2 p-2 bg-orange-600 text-white font-bold text-xs uppercase">
           <div className="col-span-8 md:col-span-8 pl-2">Khu vực / Tỉnh thành</div>
           <div className="hidden md:block md:col-span-2 text-center">Thống kê</div>
