@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 export default function ReplyForm({ conversationId, currentUserSupabaseUid }: { conversationId: string, currentUserSupabaseUid: string }) {
   const [content, setContent] = useState("");
@@ -19,7 +20,6 @@ export default function ReplyForm({ conversationId, currentUserSupabaseUid }: { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          supabaseUid: currentUserSupabaseUid,
           content
         })
       });

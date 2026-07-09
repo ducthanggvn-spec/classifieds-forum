@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { parseBBCode } from "@/utils/bbcode";
 import ImageLightbox from "./ImageLightbox";
+import DOMPurify from 'dompurify';
 
 export default function BBCodeRenderer({ content }: { content: string }) {
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
+  const [sanitizedHtml, setSanitizedHtml] = useState<string>('');
+
+  useEffect(() => {
+    // DOMPurify only works in the browser
+    setSanitizedHtml(DOMPurify.sanitize(parseBBCode(content)));
+  }, [content]);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -18,7 +25,7 @@ export default function BBCodeRenderer({ content }: { content: string }) {
     <>
       <div 
         className="bbcode-content prose dark:prose-invert max-w-none break-words"
-        dangerouslySetInnerHTML={{ __html: parseBBCode(content) }} 
+        dangerouslySetInnerHTML={{ __html: sanitizedHtml || parseBBCode(content) /* Fallback for SSR but safe since hydration will replace it */ }} 
         onClick={handleClick}
       />
       

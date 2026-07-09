@@ -1,4 +1,5 @@
 "use server";
+import { serverFetch as fetch } from '@/utils/serverFetch';
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -25,7 +26,6 @@ export async function createPost(formData: FormData) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        supabaseUid: user.id,
         citySlug,
         listingType: postType,
         title,

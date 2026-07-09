@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import AdminDashboard from "./AdminDashboard";
+import { serverFetch as fetch } from '@/utils/serverFetch';
 
 export const metadata = {
   title: "Admin Dashboard | TTVNOL",

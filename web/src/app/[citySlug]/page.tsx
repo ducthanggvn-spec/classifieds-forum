@@ -6,6 +6,7 @@ import Pagination from "@/components/Pagination";
 import SearchBar from "@/components/SearchBar";
 import MarketChatBox from "@/components/MarketChatBox";
 import MarketPresence from "@/components/MarketPresence";
+import { serverFetch as fetch } from '@/utils/serverFetch';
 
 // Dữ liệu mô phỏng cho 3 thị trường
 const validCities = ["ha-noi", "hai-phong", "ho-chi-minh"];

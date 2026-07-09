@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import TopicListItem from "@/app/[citySlug]/TopicListItem";
 import Pagination from "@/components/Pagination";
+import { serverFetch as fetch } from '@/utils/serverFetch';
 
 export default async function SearchPage({ 
   searchParams 

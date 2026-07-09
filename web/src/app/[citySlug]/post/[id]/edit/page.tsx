@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, use, useEffect, useRef } from "react";
 import { editPost } from "./actions";
 import { useRouter } from "next/navigation";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 const EMOJIS = ["😀","😂","😍","😡","😎","😭","🤔","👍","👎","❤️","🔥","🎉","✨","👀","🙏", "🤬", "🤮", "🤡", "👽", "💩"];
 

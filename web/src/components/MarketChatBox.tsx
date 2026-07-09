@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { MessageCircle, X, Send, ImagePlus, Loader2, Smile } from "lucide-react";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 type User = {
   id: number;

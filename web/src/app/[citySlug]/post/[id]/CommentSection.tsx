@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import ReactionButton from "@/components/ReactionButton";
 import BBCodeRenderer from "@/components/BBCodeRenderer";
 import SendMessageModal from "@/components/SendMessageModal";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 const EMOJIS = ["😀","😂","😍","😡","😎","😭","🤔","👍","👎","❤️","🔥","🎉","✨","👀","🙏", "🤬", "🤮", "🤡", "👽", "💩"];
 
@@ -202,7 +203,6 @@ export default function CommentSection({
         body: JSON.stringify({
           postId,
           content,
-          supabaseUid: currentUserSupabaseUid
         })
       });
 

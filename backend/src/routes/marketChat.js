@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../db');
+const { requireAuth } = require('../middleware/auth');
 
 // GET /api/markets/:citySlug/chat
 // Lấy 50 tin nhắn mới nhất của thị trường
@@ -38,13 +39,14 @@ router.get('/:citySlug/chat', async (req, res) => {
 
 // POST /api/markets/:citySlug/chat
 // Gửi tin nhắn vào thị trường
-router.post('/:citySlug/chat', async (req, res) => {
+router.post('/:citySlug/chat', requireAuth, async (req, res) => {
   try {
     const { citySlug } = req.params;
-    const { userId, content, imageUrl } = req.body;
+    const { content, imageUrl } = req.body;
+    const user = req.user;
 
-    if (!userId || (!content && !imageUrl)) {
-      return res.status(400).json({ error: 'Thiếu thông tin người dùng hoặc nội dung tin nhắn' });
+    if (!content && !imageUrl) {
+      return res.status(400).json({ error: 'Thiếu nội dung tin nhắn' });
     }
 
     const city = await prisma.city.findUnique({ where: { slug: citySlug } });
@@ -52,20 +54,10 @@ router.post('/:citySlug/chat', async (req, res) => {
       return res.status(404).json({ error: 'Không tìm thấy thị trường' });
     }
 
-    // userId có thể là số nguyên (internal ID) hoặc chuỗi UUID (Supabase UID)
-    let internalUserId = parseInt(userId);
-    if (isNaN(internalUserId) || typeof userId === 'string') {
-      const userRecord = await prisma.user.findUnique({ where: { supabaseUid: String(userId) } });
-      if (!userRecord) {
-        return res.status(401).json({ error: 'Không tìm thấy người dùng trong DB' });
-      }
-      internalUserId = userRecord.id;
-    }
-
     const newMessage = await prisma.marketMessage.create({
       data: {
         cityId: city.id,
-        userId: internalUserId,
+        userId: user.id,
         content: content ? content.trim() : null,
         imageUrl: imageUrl || null
       },
@@ -114,9 +106,7 @@ router.post('/:citySlug/heartbeat', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Không tìm thấy thị trường' });
     }
 
-    // 1. Cập nhật visitor hiện tại (Dùng bảng MarketVisitor - cần tạo bảng này, hoặc mượn bảng tạm. 
-    // Wait, prisma schema doesn't have MarketVisitor! 
-    // Thay vào đó, ta tái sử dụng bảng PostVisitor với postId = -city.id (âm) để đại diện cho Market!
+    // 1. Cập nhật visitor hiện tại
     const pseudoPostId = -city.id;
 
     await prisma.postVisitor.upsert({

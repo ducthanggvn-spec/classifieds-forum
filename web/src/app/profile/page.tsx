@@ -7,6 +7,7 @@ import AvatarUpload from "@/components/AvatarUpload";
 import ProfileForm from "./ProfileForm";
 import AdminTools from "@/components/AdminTools";
 import Link from "next/link";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -39,7 +40,7 @@ export default function ProfilePage() {
           setPosts(result.data || []);
         }
 
-        const bRes = await fetch(`${API_URL}/bookmarks?supabaseUid=${user.id}`);
+        const bRes = await fetch(`${API_URL}/bookmarks`);
         if (bRes.ok) {
           const bResult = await bRes.json();
           setBookmarks(bResult.data || []);

@@ -5,6 +5,7 @@ import { useState, use, useRef } from "react";
 import { createPost } from "./actions";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 const validCities = ["ha-noi", "hai-phong", "ho-chi-minh"];
 const cityNames: Record<string, string> = {

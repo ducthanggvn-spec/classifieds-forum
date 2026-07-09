@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 interface SendMessageModalProps {
   recipientNickname: string;
@@ -31,7 +32,6 @@ export default function SendMessageModal({ recipientNickname, currentUserSupabas
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          supabaseUid: currentUserSupabaseUid,
           recipientNickname,
           subject,
           content

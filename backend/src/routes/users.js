@@ -3,6 +3,7 @@ const router = express.Router();
 const prisma = require('../db');
 const multer = require('multer');
 const { createClient } = require('@supabase/supabase-js');
+const { requireToken, requireAuth } = require('../middleware/auth');
 
 // Cấu hình Multer để lưu file tạm vào bộ nhớ
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // Tối đa 5MB
@@ -11,9 +12,10 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 *
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY);
 
 // Đồng bộ User từ Supabase sang Prisma
-router.post('/sync', async (req, res) => {
+router.post('/sync', requireToken, async (req, res) => {
   try {
-    const { supabaseUid, email, nickname, fullName, birthYear } = req.body;
+    const { email, nickname, fullName, birthYear } = req.body;
+    const supabaseUid = req.supabaseUid; // From requireToken
     
     let user = await prisma.user.findUnique({ where: { supabaseUid } });
     
@@ -53,8 +55,12 @@ router.post('/sync', async (req, res) => {
 });
 
 // Lấy thông tin user theo ID (dành cho owner /profile)
-router.get('/:id', async (req, res) => {
+router.get('/:id', requireAuth, async (req, res) => {
   try {
+    // Only allow user to get their own full profile
+    if (req.user.supabaseUid !== req.params.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const user = await prisma.user.findUnique({
       where: { supabaseUid: req.params.id }
     });
@@ -67,8 +73,11 @@ router.get('/:id', async (req, res) => {
 });
 
 // Cập nhật thông tin user (dành cho owner /profile)
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireAuth, async (req, res) => {
   try {
+    if (req.user.supabaseUid !== req.params.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const { fullName, birthYear, phone, signature } = req.body;
     const updatedUser = await prisma.user.update({
       where: { supabaseUid: req.params.id },
@@ -87,6 +96,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Lấy thông tin user công khai theo Nickname (dành cho /user/[nickname])
+// Không cần auth
 router.get('/public/:nickname', async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
@@ -121,13 +131,13 @@ router.get('/public/:nickname', async (req, res) => {
 });
 
 // Upload Ảnh Đại Diện
-router.post('/avatar', upload.single('avatar'), async (req, res) => {
+router.post('/avatar', requireAuth, upload.single('avatar'), async (req, res) => {
   try {
-    const { userId } = req.body; // Yêu cầu gửi kèm userId (supabaseUid)
+    const userId = req.user.supabaseUid;
     const file = req.file;
 
-    if (!file || !userId) {
-      return res.status(400).json({ error: "Missing file or userId" });
+    if (!file) {
+      return res.status(400).json({ error: "Missing file" });
     }
 
     const fileExt = file.originalname.split('.').pop();

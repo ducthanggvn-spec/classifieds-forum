@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const prisma = require('../db');
 const xss = require('xss');
+const { requireAuth } = require('../middleware/auth');
 
 // Lấy danh sách bài viết (Có hỗ trợ Tìm kiếm, Lọc theo Thị trường và Phân trang)
 router.get('/', async (req, res) => {
@@ -94,18 +95,10 @@ router.get('/', async (req, res) => {
 });
 
 // Tạo bài viết mới
-router.post('/', async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
   try {
-    const { citySlug, categoryId, listingType, title, description, supabaseUid } = req.body;
-
-    // Lấy thông tin user
-    const user = await prisma.user.findUnique({
-      where: { supabaseUid },
-    });
-
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Không tìm thấy người dùng' });
-    }
+    const { citySlug, categoryId, listingType, title, description } = req.body;
+    const user = req.user;
 
     // Lấy ID của thành phố
     const city = await prisma.city.findUnique({
@@ -143,7 +136,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Lấy chi tiết một post (để dưới cùng)
+// Lấy chi tiết một post
 router.get('/:id', async (req, res) => {
   try {
     const postId = parseInt(req.params.id);
@@ -179,19 +172,14 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Đẩy bài (Up top)
-router.post('/bump/:id', async (req, res) => {
+// Đẩy bài (Bump Post)
+router.post('/bump/:id', requireAuth, async (req, res) => {
   try {
     const postId = parseInt(req.params.id);
-    const { supabaseUid } = req.body;
+    const user = req.user;
 
-    if (isNaN(postId) || !supabaseUid) {
+    if (isNaN(postId)) {
       return res.status(400).json({ success: false, error: 'Dữ liệu không hợp lệ' });
-    }
-
-    const user = await prisma.user.findUnique({ where: { supabaseUid } });
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Không tìm thấy người dùng' });
     }
 
     const post = await prisma.post.findUnique({ where: { id: postId } });
@@ -199,7 +187,7 @@ router.post('/bump/:id', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Bài viết không tồn tại' });
     }
 
-    if (post.userId !== user.id) {
+    if (post.userId !== user.id && user.role !== 'admin' && user.role !== 'mod') {
       return res.status(403).json({ success: false, error: 'Chỉ chủ bài viết mới được đẩy bài' });
     }
 
@@ -229,18 +217,13 @@ router.post('/bump/:id', async (req, res) => {
 });
 
 // Chủ bài viết tự đóng topic (Đã bán/Đã mua)
-router.put('/:id/done', async (req, res) => {
+router.put('/:id/done', requireAuth, async (req, res) => {
   try {
     const postId = parseInt(req.params.id);
-    const supabaseUid = req.headers['x-supabase-uid'] || req.body.supabaseUid;
+    const user = req.user;
 
-    if (isNaN(postId) || !supabaseUid) {
+    if (isNaN(postId)) {
       return res.status(400).json({ success: false, error: 'Dữ liệu không hợp lệ' });
-    }
-
-    const user = await prisma.user.findUnique({ where: { supabaseUid } });
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Không tìm thấy người dùng' });
     }
 
     const post = await prisma.post.findUnique({ where: { id: postId } });
@@ -265,19 +248,14 @@ router.put('/:id/done', async (req, res) => {
 });
 
 // Chỉnh sửa nội dung bài viết
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireAuth, async (req, res) => {
   try {
     const postId = parseInt(req.params.id);
     const { title, description, postType } = req.body;
-    const supabaseUid = req.headers['x-supabase-uid'] || req.body.supabaseUid;
+    const user = req.user;
 
-    if (isNaN(postId) || !supabaseUid) {
+    if (isNaN(postId)) {
       return res.status(400).json({ success: false, error: 'Dữ liệu không hợp lệ' });
-    }
-
-    const user = await prisma.user.findUnique({ where: { supabaseUid } });
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Không tìm thấy người dùng' });
     }
 
     const post = await prisma.post.findUnique({ where: { id: postId } });
@@ -311,45 +289,6 @@ router.put('/:id', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: 'Lỗi server khi cập nhật bài viết' });
-  }
-});
-
-// Đẩy bài (Bump Post)
-router.post('/bump/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { supabaseUid } = req.body;
-    
-    if (!supabaseUid) return res.status(401).json({ error: "Unauthorized" });
-
-    const user = await prisma.user.findUnique({ where: { supabaseUid } });
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    const post = await prisma.post.findUnique({ where: { id: parseInt(id) } });
-    if (!post) return res.status(404).json({ error: "Post not found" });
-
-    if (post.userId !== user.id && user.role !== 'admin' && user.role !== 'mod') {
-      return res.status(403).json({ error: "Chỉ tác giả mới được đẩy bài" });
-    }
-
-    // Kiểm tra cooldown (2 giờ)
-    const BUMP_COOLDOWN_MS = 2 * 60 * 60 * 1000;
-    const now = new Date().getTime();
-    const lastBump = new Date(post.lastBumpedAt).getTime();
-    
-    if (now - lastBump < BUMP_COOLDOWN_MS) {
-      return res.status(400).json({ error: "Chưa hết thời gian chờ để đẩy bài" });
-    }
-
-    await prisma.post.update({
-      where: { id: parseInt(id) },
-      data: { lastBumpedAt: new Date() }
-    });
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Lỗi đẩy bài:", error);
-    res.status(500).json({ error: "Server error" });
   }
 });
 

@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { createClient } from "@/utils/supabase/server";
 import { logout } from "@/app/login/actions";
 import NotificationBell from "@/components/NotificationBell";
+import { serverFetch as fetch } from '@/utils/serverFetch';
 
 const inter = Inter({ subsets: ["latin", "vietnamese"], variable: "--font-inter", display: "swap" });
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 export default function AdminTools({ currentUser }: { currentUser: any }) {
   const [users, setUsers] = useState<any[]>([]);

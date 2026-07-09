@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const prisma = require('../db');
 const xss = require('xss');
+const { requireAuth } = require('../middleware/auth');
 
-// 1. Tạo bình luận mới
+// 1. Lấy danh sách bình luận (Không yêu cầu đăng nhập)
 router.get('/:postId', async (req, res) => {
   try {
     const postId = parseInt(req.params.postId);
@@ -58,21 +59,13 @@ router.get('/:postId', async (req, res) => {
 });
 
 // Thêm bình luận mới
-router.post('/', async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
   try {
-    const { postId, content, supabaseUid } = req.body;
+    const { postId, content } = req.body;
+    const user = req.user;
 
-    if (!postId || !content || !supabaseUid) {
+    if (!postId || !content) {
       return res.status(400).json({ success: false, error: 'Thiếu thông tin bắt buộc' });
-    }
-
-    // Xác thực người dùng
-    const user = await prisma.user.findUnique({
-      where: { supabaseUid }
-    });
-
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Không tìm thấy người dùng' });
     }
 
     // Chống XSS

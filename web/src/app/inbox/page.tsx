@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { serverFetch as fetch } from '@/utils/serverFetch';
 
 export const metadata = {
   title: "Hộp thư đến | TTVNOL",
@@ -16,7 +17,7 @@ export default async function InboxPage() {
   }
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
-  const res = await fetch(`${API_URL}/messages?supabaseUid=${user.id}`, { cache: "no-store" });
+  const res = await fetch(`${API_URL}/messages`, { cache: "no-store" });
   const result = res.ok ? await res.json() : { success: false, data: [] };
   const conversations = result.success ? result.data : [];
 

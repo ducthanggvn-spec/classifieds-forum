@@ -1,15 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../db');
+const { requireAuth } = require('../middleware/auth');
 
 // Lấy danh sách hội thoại của một user
-router.get('/', async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
   try {
-    const { supabaseUid } = req.query;
-    if (!supabaseUid) return res.status(400).json({ error: 'Thiếu supabaseUid' });
-
-    const user = await prisma.user.findUnique({ where: { supabaseUid } });
-    if (!user) return res.status(404).json({ error: 'User không tồn tại' });
+    const user = req.user;
 
     const participants = await prisma.conversationParticipant.findMany({
       where: { userId: user.id },
@@ -39,16 +36,12 @@ router.get('/', async (req, res) => {
 });
 
 // Lấy chi tiết một hội thoại
-router.get('/:id', async (req, res) => {
+router.get('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const { supabaseUid } = req.query;
+    const user = req.user;
     
     if (id === 'new') return res.status(400).json({ error: 'Invalid ID' });
-    if (!supabaseUid) return res.status(400).json({ error: 'Thiếu supabaseUid' });
-
-    const user = await prisma.user.findUnique({ where: { supabaseUid } });
-    if (!user) return res.status(404).json({ error: 'User không tồn tại' });
 
     // Kiểm tra quyền truy cập (user phải là participant)
     const isParticipant = await prisma.conversationParticipant.findUnique({
@@ -83,12 +76,10 @@ router.get('/:id', async (req, res) => {
 });
 
 // Tạo hội thoại mới
-router.post('/new', async (req, res) => {
+router.post('/new', requireAuth, async (req, res) => {
   try {
-    const { supabaseUid, recipientNickname, subject, content } = req.body;
-    
-    const sender = await prisma.user.findUnique({ where: { supabaseUid } });
-    if (!sender) return res.status(404).json({ error: 'Người gửi không tồn tại' });
+    const { recipientNickname, subject, content } = req.body;
+    const sender = req.user;
 
     const recipient = await prisma.user.findFirst({ where: { nickname: recipientNickname } });
     if (!recipient) return res.status(404).json({ error: 'Không tìm thấy người nhận' });
@@ -116,7 +107,7 @@ router.post('/new', async (req, res) => {
       }
     });
 
-    // Bắn thông báo (mock/insert sau này)
+    // Bắn thông báo
     try {
       await prisma.notification.create({
         data: {
@@ -139,13 +130,11 @@ router.post('/new', async (req, res) => {
 });
 
 // Gửi tin nhắn vào hội thoại
-router.post('/:id', async (req, res) => {
+router.post('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const { supabaseUid, content } = req.body;
-    
-    const sender = await prisma.user.findUnique({ where: { supabaseUid } });
-    if (!sender) return res.status(404).json({ error: 'User không tồn tại' });
+    const { content } = req.body;
+    const sender = req.user;
 
     // Kiểm tra quyền
     const isParticipant = await prisma.conversationParticipant.findUnique({

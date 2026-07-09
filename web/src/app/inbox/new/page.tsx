@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 export default function NewConversationPage() {
   const router = useRouter();
@@ -43,7 +44,6 @@ export default function NewConversationPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          supabaseUid: user.id,
           recipientNickname: recipient,
           subject,
           content

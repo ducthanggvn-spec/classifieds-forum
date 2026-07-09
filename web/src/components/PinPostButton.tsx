@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 interface PinPostButtonProps {
   postId: number;

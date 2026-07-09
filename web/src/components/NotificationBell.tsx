@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { timeAgo } from "@/utils/time";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 export default function NotificationBell({ currentUserDbId }: { currentUserDbId: number }) {
   const [notifications, setNotifications] = useState<any[]>([]);

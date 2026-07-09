@@ -12,6 +12,7 @@ import PinPostButton from "@/components/PinPostButton";
 import Pagination from "@/components/Pagination";
 import OnlinePresence from "@/components/OnlinePresence";
 import MarketChatBox from "@/components/MarketChatBox";
+import { serverFetch as fetch } from '@/utils/serverFetch';
 
 export async function generateMetadata({ params }: { params: Promise<{ citySlug: string, id: string }> }) {
   const { id } = await params;

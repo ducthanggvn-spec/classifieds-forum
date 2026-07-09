@@ -1,4 +1,5 @@
 "use server";
+import { serverFetch as fetch } from '@/utils/serverFetch';
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";

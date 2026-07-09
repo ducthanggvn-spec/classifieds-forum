@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 export default function BookmarkButton({ postId, currentUserSupabaseUid }: { postId: number, currentUserSupabaseUid?: string }) {
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -13,7 +14,7 @@ export default function BookmarkButton({ postId, currentUserSupabaseUid }: { pos
     
     const checkBookmark = async () => {
       try {
-        const res = await fetch(`${API_URL}/bookmarks/check?supabaseUid=${currentUserSupabaseUid}&postId=${postId}`);
+        const res = await fetch(`${API_URL}/bookmarks/check?postId=${postId}`);
         if (res.ok) {
           const data = await res.json();
           setIsBookmarked(data.bookmarked);
@@ -36,7 +37,7 @@ export default function BookmarkButton({ postId, currentUserSupabaseUid }: { pos
       const res = await fetch(`${API_URL}/bookmarks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ supabaseUid: currentUserSupabaseUid, postId })
+        body: JSON.stringify({ postId })
       });
       const data = await res.json();
       if (data.success) {

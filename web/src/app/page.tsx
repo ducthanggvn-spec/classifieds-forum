@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { timeAgo } from "@/utils/time";
+import { serverFetch as fetch } from '@/utils/serverFetch';
 
 export default async function Home() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");

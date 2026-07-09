@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 interface MarkAsDoneButtonProps {
   postId: number;

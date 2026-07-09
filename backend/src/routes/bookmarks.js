@@ -1,15 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../db');
+const { requireAuth } = require('../middleware/auth');
 
 // Lấy danh sách bookmark của user
-router.get('/', async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
   try {
-    const { supabaseUid } = req.query;
-    if (!supabaseUid) return res.status(400).json({ error: 'Thiếu supabaseUid' });
-
-    const user = await prisma.user.findUnique({ where: { supabaseUid } });
-    if (!user) return res.status(404).json({ error: 'User không tồn tại' });
+    const user = req.user;
 
     const bookmarks = await prisma.bookmark.findMany({
       where: { userId: user.id },
@@ -33,13 +30,12 @@ router.get('/', async (req, res) => {
 });
 
 // Thêm hoặc xóa bookmark
-router.post('/', async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
   try {
-    const { supabaseUid, postId } = req.body;
-    if (!supabaseUid || !postId) return res.status(400).json({ error: 'Thiếu thông tin' });
+    const { postId } = req.body;
+    const user = req.user;
 
-    const user = await prisma.user.findUnique({ where: { supabaseUid } });
-    if (!user) return res.status(404).json({ error: 'User không tồn tại' });
+    if (!postId) return res.status(400).json({ error: 'Thiếu thông tin' });
 
     const existing = await prisma.bookmark.findUnique({
       where: {
@@ -69,13 +65,12 @@ router.post('/', async (req, res) => {
 });
 
 // Kiểm tra xem post đã bookmark chưa
-router.get('/check', async (req, res) => {
+router.get('/check', requireAuth, async (req, res) => {
   try {
-    const { supabaseUid, postId } = req.query;
-    if (!supabaseUid || !postId) return res.json({ bookmarked: false });
-
-    const user = await prisma.user.findUnique({ where: { supabaseUid } });
-    if (!user) return res.json({ bookmarked: false });
+    const { postId } = req.query;
+    const user = req.user;
+    
+    if (!postId) return res.json({ bookmarked: false });
 
     const existing = await prisma.bookmark.findUnique({
       where: {

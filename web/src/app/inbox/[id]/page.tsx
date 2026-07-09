@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import ReplyForm from "./ReplyForm";
 import BBCodeRenderer from "@/components/BBCodeRenderer";
+import { serverFetch as fetch } from '@/utils/serverFetch';
 
 export const metadata = {
   title: "Đọc tin nhắn | TTVNOL",
@@ -18,7 +19,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
   }
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
-  const res = await fetch(`${API_URL}/messages/${id}?supabaseUid=${user.id}`, { cache: "no-store" });
+  const res = await fetch(`${API_URL}/messages/${id}`, { cache: "no-store" });
   const result = res.ok ? await res.json() : { success: false, data: null, error: "Không tải được dữ liệu" };
   
   if (!result.success || !result.data) {

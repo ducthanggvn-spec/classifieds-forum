@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { timeAgo } from "@/utils/time"; // giả sử có hàm này hoặc ta tự viết inline
+import { serverFetch as fetch } from '@/utils/serverFetch';
 
 export default async function PublicProfilePage({ params }: { params: Promise<{ nickname: string }> }) {
   const { nickname } = await params;

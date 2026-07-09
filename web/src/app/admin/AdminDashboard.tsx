@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 export default function AdminDashboard({ currentUser, initialUsers, initialLogs }: { currentUser: any, initialUsers: any[], initialLogs: any[] }) {
   const [activeTab, setActiveTab] = useState<'users' | 'logs'>('users');

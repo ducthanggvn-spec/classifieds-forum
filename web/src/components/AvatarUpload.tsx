@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 export default function AvatarUpload({ userId, currentAvatar, nickname }: { userId: string, currentAvatar?: string | null, nickname: string }) {
   const [uploading, setUploading] = useState(false);

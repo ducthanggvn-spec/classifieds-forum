@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { Users } from "lucide-react";
+import { authFetch as fetch } from '@/utils/authFetch';
 
 type PresenceUser = {
   userId: string;

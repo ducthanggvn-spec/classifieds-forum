@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../db');
+const { requireAuth } = require('../middleware/auth');
 
 // Lấy danh sách thông báo của một user
-router.get('/:userId', async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
   try {
-    const { userId } = req.params;
+    const user = req.user;
     const notifications = await prisma.notification.findMany({
-      where: { recipientId: parseInt(userId) },
+      where: { recipientId: user.id },
       orderBy: { createdAt: 'desc' },
       take: 20, // Chỉ lấy 20 thông báo gần nhất
       include: {
@@ -54,9 +55,16 @@ router.get('/:userId', async (req, res) => {
 });
 
 // Đánh dấu 1 thông báo đã đọc
-router.put('/:id/read', async (req, res) => {
+router.put('/:id/read', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
+    const user = req.user;
+
+    const notification = await prisma.notification.findUnique({ where: { id: parseInt(id) } });
+    if (!notification || notification.recipientId !== user.id) {
+      return res.status(404).json({ error: "Không tìm thấy thông báo" });
+    }
+
     await prisma.notification.update({
       where: { id: parseInt(id) },
       data: { isRead: true }
@@ -70,11 +78,11 @@ router.put('/:id/read', async (req, res) => {
 });
 
 // Đánh dấu tất cả thông báo của 1 user đã đọc
-router.put('/user/:userId/read-all', async (req, res) => {
+router.put('/read-all', requireAuth, async (req, res) => {
   try {
-    const { userId } = req.params;
+    const user = req.user;
     await prisma.notification.updateMany({
-      where: { recipientId: parseInt(userId), isRead: false },
+      where: { recipientId: user.id, isRead: false },
       data: { isRead: true }
     });
 

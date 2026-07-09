@@ -1,4 +1,5 @@
 "use server";
+import { serverFetch as fetch } from '@/utils/serverFetch';
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -54,7 +55,6 @@ export async function signup(formData: FormData) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            supabaseUid: user.id,
             email: data.email,
             nickname: data.options?.data?.nickname,
             fullName: data.options?.data?.full_name,
