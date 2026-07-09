@@ -36,6 +36,7 @@ app.use('/api/upload', require('./routes/upload'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/reactions', require('./routes/reactions'));
 app.use('/api/bookmarks', require('./routes/bookmarks'));
+app.use('/api/markets', require('./routes/marketChat'));
 
 // Xử lý lỗi chung Route
 app.get('/', (req, res) => {

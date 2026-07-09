@@ -353,4 +353,58 @@ router.post('/bump/:id', async (req, res) => {
   }
 });
 
+// Cập nhật trạng thái online và lấy danh sách người đang xem (Heartbeat)
+router.post('/:id/heartbeat', async (req, res) => {
+  try {
+    const postId = parseInt(req.params.id);
+    const { userId, nickname, avatarUrl } = req.body;
+
+    if (isNaN(postId) || !userId) {
+      return res.status(400).json({ success: false, error: 'Dữ liệu không hợp lệ' });
+    }
+
+    // 1. Cập nhật visitor hiện tại
+    await prisma.postVisitor.upsert({
+      where: {
+        postId_userId: {
+          postId,
+          userId: String(userId),
+        }
+      },
+      update: {
+        nickname: nickname || "Khách",
+        avatarUrl: avatarUrl || null,
+        lastSeenAt: new Date(),
+      },
+      create: {
+        postId,
+        userId: String(userId),
+        nickname: nickname || "Khách",
+        avatarUrl: avatarUrl || null,
+      }
+    });
+
+    // 2. Xóa các visitor cũ (không hoạt động quá 3 phút)
+    const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
+    await prisma.postVisitor.deleteMany({
+      where: {
+        postId,
+        lastSeenAt: { lt: threeMinutesAgo }
+      }
+    });
+
+    // 3. Lấy danh sách online
+    const onlineUsers = await prisma.postVisitor.findMany({
+      where: { postId },
+      orderBy: { lastSeenAt: 'desc' },
+      take: 50
+    });
+
+    res.json({ success: true, data: onlineUsers });
+  } catch (error) {
+    console.error('Lỗi heartbeat:', error);
+    res.status(500).json({ success: false, error: 'Lỗi server' });
+  }
+});
+
 module.exports = router;

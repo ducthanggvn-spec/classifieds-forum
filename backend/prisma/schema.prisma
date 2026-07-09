@@ -33,6 +33,7 @@ model User {
   
   conversations         ConversationParticipant[]
   sentMessages          Message[]
+  marketMessages        MarketMessage[]
   moderationLogs        ModerationLog[]
 }
 
@@ -44,6 +45,7 @@ model City {
 
   posts          Post[]
   modAssignments ModAssignment[]
+  marketMessages MarketMessage[]
 }
 
 model Category {
@@ -219,4 +221,29 @@ model ModerationLog {
   createdAt   DateTime @default(now())
 
   mod User @relation(fields: [modId], references: [id], onDelete: Cascade)
+}
+
+model MarketMessage {
+  id        Int      @id @default(autoincrement())
+  cityId    Int
+  userId    Int
+  content   String?  // Có thể rỗng nếu chỉ gửi ảnh
+  imageUrl  String?  // Chứa link ảnh (nếu có)
+  createdAt DateTime @default(now())
+
+  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([cityId, createdAt])
+}
+
+model PostVisitor {
+  postId     Int
+  userId     String   // "guest-xyz" hoặc ID của user
+  nickname   String
+  avatarUrl  String?
+  lastSeenAt DateTime @default(now())
+
+  @@id([postId, userId])
+  @@index([lastSeenAt])
 }

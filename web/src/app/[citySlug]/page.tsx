@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import TopicListItem from "./TopicListItem";
 import Pagination from "@/components/Pagination";
 import SearchBar from "@/components/SearchBar";
+import MarketChatBox from "@/components/MarketChatBox";
 
 // Dữ liệu mô phỏng cho 3 thị trường
 const validCities = ["ha-noi", "hai-phong", "ho-chi-minh"];
@@ -166,6 +167,8 @@ export default async function CityMarketPage({
       {pagination.totalPages > 1 && (
         <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
       )}
+
+      <MarketChatBox citySlug={citySlug} currentUser={currentUser} />
     </div>
   );
 }

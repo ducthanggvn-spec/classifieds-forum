@@ -10,6 +10,7 @@ import MarkAsDoneButton from "@/components/MarkAsDoneButton";
 import BBCodeRenderer from "@/components/BBCodeRenderer";
 import PinPostButton from "@/components/PinPostButton";
 import Pagination from "@/components/Pagination";
+import OnlinePresence from "@/components/OnlinePresence";
 
 export async function generateMetadata({ params }: { params: Promise<{ citySlug: string, id: string }> }) {
   const { id } = await params;
@@ -256,6 +257,8 @@ export default async function PostDetailPage({
           🔒 Chủ đề này đã được đóng vì giao dịch hoàn tất. Bạn không thể bình luận thêm.
         </div>
       )}
+
+      <OnlinePresence postId={postId} currentUser={dbUser || user} />
 
       <CommentSection 
         postId={postId}
