@@ -28,7 +28,7 @@ export default function EditPostPage({ params }: { params: Promise<{ citySlug: s
     // Fetch post data
     const fetchPost = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
         const res = await fetch(`${API_URL}/posts/${postId}`);
         const data = await res.json();
         
@@ -92,7 +92,7 @@ export default function EditPostPage({ params }: { params: Promise<{ citySlug: s
     let uploadedUrls: string[] = [];
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
       
       // Upload từng ảnh một
       for (const file of filesToUpload) {

@@ -13,7 +13,7 @@ type PresenceUser = {
 
 export default function OnlinePresence({ postId, currentUser }: { postId: number; currentUser: any }) {
   const [onlineUsers, setOnlineUsers] = useState<PresenceUser[]>([]);
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
   
   // Dùng ref để lưu giữ ID random của guest trong suốt phiên làm việc
   const guestIdRef = useRef(`guest-${Math.random().toString(36).substring(2, 9)}`);

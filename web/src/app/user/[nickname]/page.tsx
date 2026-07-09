@@ -5,7 +5,7 @@ import { timeAgo } from "@/utils/time"; // giả sử có hàm này hoặc ta t�
 export default async function PublicProfilePage({ params }: { params: Promise<{ nickname: string }> }) {
   const { nickname } = await params;
   
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
   const res = await fetch(`${API_URL}/users/public/${nickname}`, {
     cache: "no-store"
   });

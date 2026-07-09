@@ -46,7 +46,7 @@ export async function signup(formData: FormData) {
   // Gọi sang Express Backend để tạo row trong bảng User của Prisma
   if (data.email) {
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
       
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {

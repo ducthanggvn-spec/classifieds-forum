@@ -126,7 +126,7 @@ export default function CommentSection({
     let uploadedUrls: string[] = [];
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
       
       // Upload từng ảnh một
       for (const file of filesToUpload) {
@@ -164,7 +164,7 @@ export default function CommentSection({
   const handleBump = async () => {
     if (!currentUser || cooldownText) return;
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
       const res = await fetch(`${API_URL}/posts/bump/${postId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -195,7 +195,7 @@ export default function CommentSection({
     setError(null);
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
       const res = await fetch(`${API_URL}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

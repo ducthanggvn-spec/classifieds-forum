@@ -17,7 +17,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<'posts' | 'bookmarks'>('posts');
   
   const supabase = createClient();
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
 
   useEffect(() => {
     const init = async () => {

@@ -15,7 +15,7 @@ import MarketChatBox from "@/components/MarketChatBox";
 
 export async function generateMetadata({ params }: { params: Promise<{ citySlug: string, id: string }> }) {
   const { id } = await params;
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
   
   try {
     const res = await fetch(`${API_URL}/posts/${id}`);
@@ -68,7 +68,7 @@ export default async function PostDetailPage({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
 
   let dbUser = null;
   if (user) {
