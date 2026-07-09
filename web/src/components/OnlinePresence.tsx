@@ -61,7 +61,14 @@ export default function OnlinePresence({ postId, currentUser }: { postId: number
     };
   }, [postId, currentUser, API_URL]);
 
-  if (onlineUsers.length === 0) return null;
+  if (onlineUsers.length === 0) {
+    return (
+      <div className="flex flex-wrap items-center gap-2 bg-muted/30 px-4 py-3 rounded-lg border border-border mt-6 text-sm text-gray-500">
+        <Users size={16} className="text-gray-400 shrink-0 animate-pulse" />
+        <span className="animate-pulse">Đang tải số người xem...</span>
+      </div>
+    );
+  }
 
   const displayUsers = onlineUsers.slice(0, 5);
   const remainingCount = onlineUsers.length - displayUsers.length;

@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { MessageCircle, X, Send, ImagePlus, Loader2 } from "lucide-react";
-import Image from "next/image";
+import { MessageCircle, X, Send, ImagePlus, Loader2, Smile } from "lucide-react";
 
 type User = {
   id: number;
@@ -26,6 +25,7 @@ export default function MarketChatBox({ citySlug, currentUser }: { citySlug: str
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -33,20 +33,18 @@ export default function MarketChatBox({ citySlug, currentUser }: { citySlug: str
   const supabase = createClient();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://classifieds-forum.onrender.com/api" : "http://localhost:5000/api");
 
-  // Load message history when open
+  // Load message history every time chat is opened
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
+    if (isOpen) {
       fetch(`${API_URL}/markets/${citySlug}/chat`)
         .then((res) => res.json())
         .then((data) => {
           if (Array.isArray(data)) {
             setMessages(data);
-            setUnreadCount(0); // reset unread count when opened
+            setUnreadCount(0);
           }
         })
         .catch(console.error);
-    } else if (isOpen) {
-      setUnreadCount(0);
     }
   }, [isOpen, citySlug]);
 
@@ -187,14 +185,14 @@ export default function MarketChatBox({ citySlug, currentUser }: { citySlug: str
               return (
                 <div key={msg.id || idx} className={`flex gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                   {msg.user?.avatarUrl ? (
-                    <Image src={msg.user.avatarUrl} alt="avatar" width={32} height={32} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                    <img src={msg.user.avatarUrl} alt="avatar" className="w-8 h-8 rounded-full object-cover flex-shrink-0 bg-white" onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + (msg.user?.nickname || 'U') }} />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 text-xs font-bold text-gray-700 dark:text-gray-300">
                       {msg.user?.nickname?.charAt(0).toUpperCase() || '?'}
                     </div>
                   )}
                   <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[75%]`}>
-                    <span className="text-[10px] text-gray-500 mb-0.5">{msg.user?.nickname}</span>
+                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-0.5">{msg.user?.nickname}</span>
                     <div className={`px-3 py-2 rounded-2xl text-sm flex flex-col gap-1 ${isMe ? 'bg-primary text-white rounded-tr-sm' : 'bg-white dark:bg-secondary border border-border text-foreground rounded-tl-sm shadow-sm'}`}>
                       {msg.imageUrl && (
                         <div className="relative rounded overflow-hidden mt-1 cursor-pointer" onClick={() => window.open(msg.imageUrl!, '_blank')}>
@@ -218,12 +216,41 @@ export default function MarketChatBox({ citySlug, currentUser }: { citySlug: str
               Vui lòng đăng nhập để chat.
             </div>
           ) : (
-            <form onSubmit={(e) => handleSendMessage(e)} className="flex gap-2 items-center">
+            <form onSubmit={(e) => handleSendMessage(e)} className="flex gap-2 items-center relative">
+              
+              {/* Emoji Picker Popover */}
+              {showEmojiPicker && (
+                <div className="absolute bottom-12 left-0 bg-white dark:bg-secondary border border-border rounded-lg shadow-xl p-2 z-50 flex gap-2 flex-wrap w-[220px]">
+                  {["😀","😂","🥰","😎","🤔","👍","❤️","🔥","🎉","👀","🙏","😅","🤣","😭","✨"].map(emoji => (
+                    <button 
+                      key={emoji} 
+                      type="button"
+                      className="text-xl p-1 hover:bg-muted rounded"
+                      onClick={() => {
+                        setInputValue(prev => prev + emoji);
+                        setShowEmojiPicker(false);
+                      }}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <button 
+                type="button" 
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="p-1.5 text-gray-500 hover:text-primary transition-colors"
+                title="Thêm Emoji"
+              >
+                <Smile size={20} />
+              </button>
+
               <button 
                 type="button" 
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="p-2 text-gray-500 hover:text-primary transition-colors disabled:opacity-50"
+                className="p-1.5 text-gray-500 hover:text-primary transition-colors disabled:opacity-50"
                 title="Đính kèm ảnh"
               >
                 {isUploading ? <Loader2 size={20} className="animate-spin" /> : <ImagePlus size={20} />}
@@ -240,14 +267,14 @@ export default function MarketChatBox({ citySlug, currentUser }: { citySlug: str
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Nhập tin nhắn..."
-                className="flex-1 min-w-0 bg-muted/50 border border-border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                className="flex-1 min-w-0 bg-muted/50 border border-border rounded-full px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
               />
               <button 
                 type="submit" 
                 disabled={!inputValue.trim() && !isUploading}
                 className="p-2 rounded-full bg-primary text-white disabled:opacity-50 hover:bg-primary/90 transition-colors shrink-0"
               >
-                <Send size={18} />
+                <Send size={16} />
               </button>
             </form>
           )}

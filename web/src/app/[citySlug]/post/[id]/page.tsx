@@ -11,6 +11,7 @@ import BBCodeRenderer from "@/components/BBCodeRenderer";
 import PinPostButton from "@/components/PinPostButton";
 import Pagination from "@/components/Pagination";
 import OnlinePresence from "@/components/OnlinePresence";
+import MarketChatBox from "@/components/MarketChatBox";
 
 export async function generateMetadata({ params }: { params: Promise<{ citySlug: string, id: string }> }) {
   const { id } = await params;
@@ -276,6 +277,9 @@ export default async function PostDetailPage({
 
       {/* Thanh phân trang bình luận */}
       <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
+
+      {/* Floating Chat Box */}
+      <MarketChatBox citySlug={citySlug} currentUser={dbUser || user} />
     </div>
   );
 }
