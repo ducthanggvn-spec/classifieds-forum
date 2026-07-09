@@ -52,10 +52,20 @@ router.post('/:citySlug/chat', async (req, res) => {
       return res.status(404).json({ error: 'Không tìm thấy thị trường' });
     }
 
+    // userId có thể là số nguyên (internal ID) hoặc chuỗi UUID (Supabase UID)
+    let internalUserId = parseInt(userId);
+    if (isNaN(internalUserId) || typeof userId === 'string') {
+      const userRecord = await prisma.user.findUnique({ where: { supabaseUid: String(userId) } });
+      if (!userRecord) {
+        return res.status(401).json({ error: 'Không tìm thấy người dùng trong DB' });
+      }
+      internalUserId = userRecord.id;
+    }
+
     const newMessage = await prisma.marketMessage.create({
       data: {
         cityId: city.id,
-        userId: parseInt(userId),
+        userId: internalUserId,
         content: content ? content.trim() : null,
         imageUrl: imageUrl || null
       },
