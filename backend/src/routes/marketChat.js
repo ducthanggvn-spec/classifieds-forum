@@ -98,4 +98,68 @@ router.post('/:citySlug/chat', async (req, res) => {
   }
 });
 
+// POST /api/markets/:citySlug/heartbeat
+// Cập nhật trạng thái online của người dùng trong một khu vực (Market)
+router.post('/:citySlug/heartbeat', async (req, res) => {
+  try {
+    const { citySlug } = req.params;
+    const { userId, nickname, avatarUrl } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'Thiếu userId' });
+    }
+
+    const city = await prisma.city.findUnique({ where: { slug: citySlug } });
+    if (!city) {
+      return res.status(404).json({ success: false, error: 'Không tìm thấy thị trường' });
+    }
+
+    // 1. Cập nhật visitor hiện tại (Dùng bảng MarketVisitor - cần tạo bảng này, hoặc mượn bảng tạm. 
+    // Wait, prisma schema doesn't have MarketVisitor! 
+    // Thay vào đó, ta tái sử dụng bảng PostVisitor với postId = -city.id (âm) để đại diện cho Market!
+    const pseudoPostId = -city.id;
+
+    await prisma.postVisitor.upsert({
+      where: {
+        postId_userId: {
+          postId: pseudoPostId,
+          userId: String(userId),
+        }
+      },
+      update: {
+        nickname: nickname || "Khách",
+        avatarUrl: avatarUrl || null,
+        lastSeenAt: new Date(),
+      },
+      create: {
+        postId: pseudoPostId,
+        userId: String(userId),
+        nickname: nickname || "Khách",
+        avatarUrl: avatarUrl || null,
+      }
+    });
+
+    // 2. Xóa các visitor cũ (không hoạt động quá 3 phút)
+    const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
+    await prisma.postVisitor.deleteMany({
+      where: {
+        postId: pseudoPostId,
+        lastSeenAt: { lt: threeMinutesAgo }
+      }
+    });
+
+    // 3. Lấy danh sách online
+    const onlineUsers = await prisma.postVisitor.findMany({
+      where: { postId: pseudoPostId },
+      orderBy: { lastSeenAt: 'desc' },
+      take: 100
+    });
+
+    res.json({ success: true, data: onlineUsers });
+  } catch (error) {
+    console.error('Lỗi market heartbeat:', error);
+    res.status(500).json({ success: false, error: 'Lỗi server' });
+  }
+});
+
 module.exports = router;
