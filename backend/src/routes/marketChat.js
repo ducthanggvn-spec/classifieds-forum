@@ -72,6 +72,16 @@ router.post('/:citySlug/chat', async (req, res) => {
     });
 
     res.status(201).json(newMessage);
+
+    // Dọn dẹp tin nhắn cũ hơn 3 ngày (Chạy ngầm)
+    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+    prisma.marketMessage.deleteMany({
+      where: {
+        cityId: city.id,
+        createdAt: { lt: threeDaysAgo }
+      }
+    }).catch(err => console.error('Lỗi dọn dẹp tin nhắn:', err));
+
   } catch (error) {
     console.error('Error posting market chat:', error);
     res.status(500).json({ error: 'Lỗi server khi gửi tin nhắn' });
