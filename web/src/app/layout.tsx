@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "Diễn đàn TTVNOL",
   description: "Cộng đồng rao vặt, mua bán nhanh chóng - TTVNOL",
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
+    google: "J_IcTtRETdEoQOfnjWGnmrRrMPKoIAJ2hurmVNIC8lI",
   },
 };
 
