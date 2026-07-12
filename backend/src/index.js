@@ -43,7 +43,11 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Classifieds Forum API' });
 });
 
+const { startFacebookCronJob } = require('./cron/facebookPoster');
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  // Khởi động cronjob quét bài đăng Facebook
+  startFacebookCronJob();
 });
