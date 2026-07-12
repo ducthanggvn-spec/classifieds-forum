@@ -76,6 +76,15 @@ const startFacebookCronJob = () => {
           }
         } catch (error) {
           console.error(`❌ Lỗi khi xử lý bài viết ID ${post.id}:`, error.message);
+          
+          // [CRITICAL FIX] Dù lỗi cũng phải đánh dấu là đã xử lý để tránh kẹt hàng đợi (Queue Stall)
+          await prisma.post.update({
+            where: { id: post.id },
+            data: { 
+              isPostedToFb: true,
+              fbPostId: 'ERROR_API_REJECTED'
+            }
+          });
         }
         
         // Nghỉ 5 giây giữa các lần đăng để tránh bị Facebook đánh dấu là spam

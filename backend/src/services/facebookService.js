@@ -55,7 +55,7 @@ class FacebookService {
 
       // Đính kèm hình ảnh vào bài đăng
       if (mediaIds.length > 0) {
-        postData.attached_media = JSON.stringify(mediaIds);
+        postData.attached_media = mediaIds;
       }
 
       const response = await axios.post(`${this.baseUrl}/${this.pageId}/feed`, postData);
