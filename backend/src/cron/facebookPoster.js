@@ -33,7 +33,7 @@ const startFacebookCronJob = () => {
       // Tìm tối đa 3 bài viết active nhưng chưa được đăng (isPostedToFb = false)
       const postsToPublish = await prisma.post.findMany({
         where: {
-          status: 'active',
+          city: { slug: 'hai-phong' },
           isPostedToFb: false
         },
         include: {
