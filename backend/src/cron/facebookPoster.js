@@ -44,7 +44,7 @@ const startFacebookCronJob = () => {
             take: 4 // Lấy tối đa 4 hình ảnh đầu tiên để tránh lỗi FB nếu gửi quá nhiều
           }
         },
-        orderBy: { createdAt: 'asc' },
+        orderBy: { createdAt: 'desc' },
         take: 1 
       });
 
