@@ -8,13 +8,16 @@ const formatPostMessage = (post) => {
   const priceDisplay = post.price ? `${new Intl.NumberFormat('vi-VN').format(post.price)} VNĐ` : 'Thương lượng';
   const cityName = post.city?.name ? post.city.name.toUpperCase() : 'TOÀN QUỐC';
   
+  // Xóa các thẻ [img]...[/img] ra khỏi nội dung để Facebook nhìn đẹp hơn
+  const cleanDescription = post.description.replace(/\[img\].*?\[\/img\]/g, '').trim();
+  
   return `📢 [${cityName}] ${post.title}
 💰 Giá: ${priceDisplay}
 📍 Khu vực: ${post.city?.name || 'Không xác định'}
 📂 Danh mục: ${post.category?.name || 'Khác'}
 
 📝 Nội dung:
-${post.description}
+${cleanDescription}
 
 🔗 Xem chi tiết và liên hệ tại: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/posts/${post.id}`;
 };
@@ -56,9 +59,23 @@ const startFacebookCronJob = () => {
       for (const post of postsToPublish) {
         try {
           const message = formatPostMessage(post);
-          const imageUrls = post.images.map(img => img.imageUrl);
           
-          console.log(`📤 Đang đăng bài: ${post.title}...`);
+          // Lấy hình ảnh từ bảng images
+          let imageUrls = post.images.map(img => img.imageUrl);
+          
+          // Trích xuất thêm hình ảnh từ thẻ [img] trong nội dung bài viết
+          const imgRegex = /\[img\](.*?)\[\/img\]/g;
+          let match;
+          while ((match = imgRegex.exec(post.description)) !== null) {
+            if (!imageUrls.includes(match[1])) {
+              imageUrls.push(match[1]);
+            }
+          }
+          
+          // Lấy tối đa 4 hình để tránh lỗi FB
+          imageUrls = imageUrls.slice(0, 4);
+          
+          console.log(`📤 Đang đăng bài: ${post.title} (Kèm ${imageUrls.length} ảnh)...`);
           
           // Gọi API đăng Facebook
           const fbPostId = await facebookService.createPost(message, imageUrls);

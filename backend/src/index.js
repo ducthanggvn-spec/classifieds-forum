@@ -48,6 +48,8 @@ const { startFacebookCronJob } = require('./cron/facebookPoster');
 // Start Server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  // Khởi động cronjob quét bài đăng Facebook
-  startFacebookCronJob();
+  // Khởi động cronjob quét bài đăng Facebook (Chỉ chạy trên instance 0 nếu dùng PM2 cluster mode)
+  if (process.env.NODE_APP_INSTANCE === undefined || process.env.NODE_APP_INSTANCE === '0') {
+    startFacebookCronJob();
+  }
 });
