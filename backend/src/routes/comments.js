@@ -153,6 +153,34 @@ router.post('/', requireAuth, async (req, res) => {
           }
         });
       }
+
+      // Nhận diện và thông báo cho người bị trích dẫn (quote)
+      const quoteRegex = /\[quote=([^\]]+)\]/g;
+      let match;
+      const mentionedNicknames = new Set();
+      while ((match = quoteRegex.exec(safeContent)) !== null) {
+        mentionedNicknames.add(match[1]);
+      }
+
+      for (const nickname of mentionedNicknames) {
+        // Tìm user theo nickname (không phân biệt hoa thường để an toàn)
+        const quotedUser = await prisma.user.findFirst({
+          where: { nickname: { equals: nickname, mode: 'insensitive' } }
+        });
+
+        // Chỉ gửi nếu user tồn tại, khác với người đang comment, và khác chủ bài viết (vì chủ bài đã được thông báo ở trên)
+        if (quotedUser && quotedUser.id !== user.id && quotedUser.id !== post.userId) {
+          await prisma.notification.create({
+            data: {
+              recipientId: quotedUser.id,
+              actorId: user.id,
+              type: 'REPLY',
+              targetId: post.id,
+              content: `đã trích dẫn bình luận của bạn trong bài viết "${post.title.substring(0, 30)}...".`
+            }
+          });
+        }
+      }
     }
 
     res.json({ success: true, data: comment });

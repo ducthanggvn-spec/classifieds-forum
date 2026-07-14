@@ -162,6 +162,30 @@ router.post('/:id', requireAuth, async (req, res) => {
       data: { lastReadAt: new Date() }
     });
 
+    // Bắn thông báo cho các thành viên khác trong hội thoại
+    try {
+      const otherParticipants = await prisma.conversationParticipant.findMany({
+        where: { 
+          conversationId: parseInt(id),
+          userId: { not: sender.id }
+        }
+      });
+      
+      for (const p of otherParticipants) {
+        await prisma.notification.create({
+          data: {
+            recipientId: p.userId,
+            actorId: sender.id,
+            type: 'INBOX',
+            targetId: parseInt(id),
+            content: 'đã trả lời tin nhắn của bạn.'
+          }
+        });
+      }
+    } catch (e) {
+      console.log('Không thể tạo thông báo tin nhắn:', e.message);
+    }
+
     res.json({ success: true, data: message });
   } catch (error) {
     console.error("Lỗi gửi tin nhắn:", error);
