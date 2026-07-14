@@ -32,6 +32,8 @@ export default function CreatePostPage({ params }: { params: Promise<{ citySlug:
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const isSubmittingRef = useRef(false);
+
   const insertBBCode = (tag: string) => {
     if (!textareaRef.current) {
       setContent((prev) => `${prev}[${tag}][/${tag}]`);
@@ -55,28 +57,37 @@ export default function CreatePostPage({ params }: { params: Promise<{ citySlug:
   };
 
   const handleSubmit = async (formData: FormData) => {
+    if (isSubmittingRef.current) return;
+    
+    isSubmittingRef.current = true;
     setLoading(true);
     setError(null);
     formData.append("citySlug", citySlug);
     formData.append("content", content); // TextArea doesn't automatically submit its value properly if overridden sometimes, but better safe.
     if (category === 'food') formData.append("categoryId", "2");
     
-    const result = await createPost(formData);
-    if (result?.error) {
-      setError(result.error);
+    try {
+      const result = await createPost(formData);
+      if (result?.error) {
+        setError(result.error);
+        setLoading(false);
+        isSubmittingRef.current = false;
+      } else if (result?.success) {
+        let timeLeft = 1;
+        setSuccessCountdown(timeLeft);
+        const timer = setInterval(() => {
+          timeLeft -= 1;
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+            router.push(`/${citySlug}/post/${result.postId}`);
+          } else {
+            setSuccessCountdown(timeLeft);
+          }
+        }, 1000);
+      }
+    } catch (e) {
       setLoading(false);
-    } else if (result?.success) {
-      let timeLeft = 1;
-      setSuccessCountdown(timeLeft);
-      const timer = setInterval(() => {
-        timeLeft -= 1;
-        if (timeLeft <= 0) {
-          clearInterval(timer);
-          router.push(`/${citySlug}/post/${result.postId}`);
-        } else {
-          setSuccessCountdown(timeLeft);
-        }
-      }, 1000);
+      isSubmittingRef.current = false;
     }
   };
 
