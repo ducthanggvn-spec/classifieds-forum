@@ -34,6 +34,11 @@ export default function NotificationBell({ currentUserDbId }: { currentUserDbId:
   useEffect(() => {
     fetchNotifications();
     
+    // Tự động kiểm tra thông báo mới mỗi 30 giây
+    const interval = setInterval(() => {
+      fetchNotifications();
+    }, 30000);
+    
     // Đóng dropdown khi click ra ngoài
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -41,7 +46,11 @@ export default function NotificationBell({ currentUserDbId }: { currentUserDbId:
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      clearInterval(interval);
+    };
   }, [currentUserDbId]);
 
   const toggleDropdown = () => {
