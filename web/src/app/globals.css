@@ -36,3 +36,59 @@ body {
   background-color: var(--background);
   color: var(--foreground);
 }
+
+/* Base style for Quote Box */
+.bbcode-quote {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--secondary);
+  background-color: var(--background);
+  padding: 10px 14px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.bbcode-quote .quote-header {
+  font-weight: bold;
+  color: var(--secondary);
+  font-size: 11px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.bbcode-quote .quote-body {
+  font-style: italic;
+  color: var(--foreground);
+}
+
+/* Lớp 2 (nhạt hơn chút) */
+.bbcode-quote .bbcode-quote {
+  border-left-color: #60a5fa;
+  background-color: #f1f5f9;
+  border-color: #e2e8f0;
+}
+.dark .bbcode-quote .bbcode-quote {
+  background-color: #1e293b;
+  border-color: #334155;
+  border-left-color: #3b82f6;
+}
+
+/* Lớp 3 (nhạt hơn nữa) */
+.bbcode-quote .bbcode-quote .bbcode-quote {
+  border-left-color: #94a3b8;
+  background-color: #e2e8f0;
+}
+.dark .bbcode-quote .bbcode-quote .bbcode-quote {
+  background-color: #334155;
+  border-left-color: #64748b;
+}
+
+/* Lớp 4+ (đậm đặc xám) */
+.bbcode-quote .bbcode-quote .bbcode-quote .bbcode-quote {
+  border-left-color: #cbd5e1;
+  background-color: #cbd5e1;
+}
+.dark .bbcode-quote .bbcode-quote .bbcode-quote .bbcode-quote {
+  background-color: #475569;
+  border-left-color: #94a3b8;
+}

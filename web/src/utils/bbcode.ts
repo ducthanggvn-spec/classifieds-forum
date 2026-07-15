@@ -26,10 +26,10 @@ export function parseBBCode(text: string) {
   while (html !== previous) {
     previous = html;
     html = html.replace(/\[quote=([^\]]+)\]((?:(?!\[\/?quote).)*?)\[\/quote\]/gi, (match, name, content) => {
-      return `<blockquote class='bbcode-quote border-l-[3px] border-[#3b82f6] bg-[#f8fafc] dark:bg-[#1e293b] px-3 py-2 mt-2 mb-3 rounded-r-md text-[13px] text-gray-700 dark:text-gray-300 shadow-sm'><div class='font-bold text-[#2563eb] dark:text-blue-400 text-xs mb-1 uppercase tracking-wide'>${name} viết:</div><div class='italic'>${content}</div></blockquote>`;
+      return `<blockquote class='bbcode-quote'><div class='quote-header'>${name} viết:</div><div class='quote-body'>${content}</div></blockquote>`;
     });
     html = html.replace(/\[quote\]((?:(?!\[\/?quote).)*?)\[\/quote\]/gi, (match, content) => {
-      return `<blockquote class='bbcode-quote border-l-[3px] border-gray-400 bg-[#f8fafc] dark:bg-[#1e293b] px-3 py-2 mt-2 mb-3 rounded-r-md text-[13px] text-gray-700 dark:text-gray-300 italic shadow-sm'>${content}</blockquote>`;
+      return `<blockquote class='bbcode-quote'><div class='quote-body italic'>${content}</div></blockquote>`;
     });
   }
 
