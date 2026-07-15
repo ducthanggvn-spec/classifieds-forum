@@ -107,6 +107,67 @@ export default function AdminTools({ currentUser }: { currentUser: any }) {
     }
   };
 
+  const handleBanUser = async (userId: number, currentBanStatus: boolean) => {
+    const action = currentBanStatus ? 'Mở khóa' : 'Khóa (Ban)';
+    const reason = prompt(`Nhập lý do ${action} tài khoản này:`);
+    if (reason === null) return; // User cancelled
+    
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
+      const res = await fetch(`${API_URL}/admin/users/${userId}/ban`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "x-supabase-uid": currentUser.supabaseUid,
+        },
+        body: JSON.stringify({ isBanned: !currentBanStatus, reason }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`${action} thành công`);
+        fetchUsers();
+        fetchLogs();
+      } else {
+        alert("Lỗi: " + data.error);
+      }
+    } catch (err) {
+      alert("Lỗi kết nối");
+    }
+  };
+
+  const handleDeleteUser = async (userId: number) => {
+    if (!confirm("CẢNH BÁO: Hành động này sẽ XÓA VĨNH VIỄN tài khoản người dùng và không thể khôi phục! Bạn có chắc chắn muốn tiếp tục?")) return;
+    
+    const reason = prompt("Nhập lý do XÓA tài khoản (Bắt buộc):");
+    if (!reason) {
+      alert("Bắt buộc phải nhập lý do xóa!");
+      return;
+    }
+    
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
+      const res = await fetch(`${API_URL}/admin/users/${userId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "x-supabase-uid": currentUser.supabaseUid,
+        },
+        body: JSON.stringify({ reason }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Xóa tài khoản thành công");
+        setSelectedUserId(null);
+        fetchUsers();
+        fetchLogs();
+      } else {
+        alert("Lỗi: " + data.error);
+      }
+    } catch (err) {
+      alert("Lỗi kết nối");
+    }
+  };
+
   if (currentUser.role !== "admin" && currentUser.role !== "mod") {
     return null;
   }
@@ -202,7 +263,10 @@ export default function AdminTools({ currentUser }: { currentUser: any }) {
                             className="border p-1 text-xs w-full text-black rounded"
                           />
                         ) : (
-                          <span className="font-bold">{u.nickname}</span>
+                          <span className="font-bold">
+                            {u.nickname}
+                            {u.isBanned && <span className="ml-2 px-1.5 py-0.5 bg-red-600 text-white text-[10px] rounded uppercase">Banned</span>}
+                          </span>
                         )}
                       </td>
                       <td className="py-2 px-4">
@@ -252,6 +316,24 @@ export default function AdminTools({ currentUser }: { currentUser: any }) {
                               }} 
                               className="text-xs text-blue-600 underline"
                             >Sửa Profile</button>
+                            <span className="text-gray-300">|</span>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); handleBanUser(u.id, u.isBanned); }}
+                              className={`text-xs ${u.isBanned ? 'text-green-600' : 'text-orange-600'} hover:underline font-bold`}
+                            >
+                              {u.isBanned ? 'Mở Khóa' : 'Ban (Khóa)'}
+                            </button>
+                            {currentUser.role === 'admin' && (
+                              <>
+                                <span className="text-gray-300">|</span>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteUser(u.id); }}
+                                  className="text-xs text-red-600 hover:underline font-bold"
+                                >
+                                  Xóa User
+                                </button>
+                              </>
+                            )}
                           </div>
                         ) : (
                           <span className="text-gray-400 text-xs hover:text-blue-500">Chỉ định ✎</span>
