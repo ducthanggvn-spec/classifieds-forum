@@ -26,10 +26,10 @@ export function parseBBCode(text: string) {
   while (html !== previous) {
     previous = html;
     html = html.replace(/\[quote=([^\]]+)\]((?:(?!\[\/?quote).)*?)\[\/quote\]/gi, (match, name, content) => {
-      return `<blockquote class='border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/30 p-3 my-3 rounded text-sm italic'><div class='font-bold text-blue-700 dark:text-blue-400 mb-1'>${name} viết:</div>${content}</blockquote>`;
+      return `<blockquote class='bbcode-quote border-l-[3px] border-[#3b82f6] bg-[#f8fafc] dark:bg-[#1e293b] px-3 py-2 mt-2 mb-3 rounded-r-md text-[13px] text-gray-700 dark:text-gray-300 shadow-sm'><div class='font-bold text-[#2563eb] dark:text-blue-400 text-xs mb-1 uppercase tracking-wide'>${name} viết:</div><div class='italic'>${content}</div></blockquote>`;
     });
     html = html.replace(/\[quote\]((?:(?!\[\/?quote).)*?)\[\/quote\]/gi, (match, content) => {
-      return `<blockquote class='border-l-4 border-gray-400 bg-gray-50 dark:bg-gray-800 p-3 my-3 rounded text-sm italic'>${content}</blockquote>`;
+      return `<blockquote class='bbcode-quote border-l-[3px] border-gray-400 bg-[#f8fafc] dark:bg-[#1e293b] px-3 py-2 mt-2 mb-3 rounded-r-md text-[13px] text-gray-700 dark:text-gray-300 italic shadow-sm'>${content}</blockquote>`;
     });
   }
 
