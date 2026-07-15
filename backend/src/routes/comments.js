@@ -162,6 +162,7 @@ router.post('/', requireAuth, async (req, res) => {
         mentionedNicknames.add(match[1]);
       }
 
+      const quotedUserIds = new Set();
       for (const nickname of mentionedNicknames) {
         // Tìm user theo nickname (không phân biệt hoa thường để an toàn)
         const quotedUser = await prisma.user.findFirst({
@@ -170,6 +171,7 @@ router.post('/', requireAuth, async (req, res) => {
 
         // Chỉ gửi nếu user tồn tại, khác với người đang comment, và khác chủ bài viết (vì chủ bài đã được thông báo ở trên)
         if (quotedUser && quotedUser.id !== user.id && quotedUser.id !== post.userId) {
+          quotedUserIds.add(quotedUser.id);
           await prisma.notification.create({
             data: {
               recipientId: quotedUser.id,
@@ -180,6 +182,29 @@ router.post('/', requireAuth, async (req, res) => {
             }
           });
         }
+      }
+
+      // Thông báo cho những người cùng tham gia (đã từng bình luận)
+      const previousComments = await prisma.comment.findMany({
+        where: { postId: parseInt(postId) },
+        select: { userId: true },
+        distinct: ['userId']
+      });
+
+      const participantIds = previousComments
+        .map(c => c.userId)
+        .filter(id => id !== user.id && id !== post.userId && !quotedUserIds.has(id));
+
+      if (participantIds.length > 0) {
+        await prisma.notification.createMany({
+          data: participantIds.map(id => ({
+            recipientId: id,
+            actorId: user.id,
+            type: 'COMMENT',
+            targetId: post.id,
+            content: `cũng đã bình luận trong bài viết "${post.title.substring(0, 30)}..." mà bạn đang theo dõi.`
+          }))
+        });
       }
     }
 
