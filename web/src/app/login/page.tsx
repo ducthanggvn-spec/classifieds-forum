@@ -66,6 +66,12 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
+            
+            {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('message') && (
+              <div className="p-3 text-sm text-green-600 bg-green-50 border-b border-border font-bold">
+                {new URLSearchParams(window.location.search).get('message')}
+              </div>
+            )}
 
             <div className="divide-y divide-border">
               {/* Field: Email */}
@@ -103,7 +109,7 @@ export default function LoginPage() {
                   />
                   {isLogin && (
                     <div className="mt-2 text-xs">
-                      <Link href="#" className="text-secondary hover:underline">Quên mật khẩu?</Link>
+                      <Link href="/forgot-password" className="text-secondary hover:underline">Quên mật khẩu?</Link>
                     </div>
                   )}
                 </div>
