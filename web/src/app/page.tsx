@@ -16,7 +16,7 @@ export default async function Home() {
     console.error("Failed to fetch stats:", error);
   }
 
-  const getStat = (citySlug: string, cat: 'marketplace' | 'food') => {
+  const getStat = (citySlug: string, cat: 'marketplace' | 'food' | 'ship') => {
     const defaultStat = { posts: 0, replies: 0, latestTitle: null, latestTime: null };
     if (!stats || !stats[citySlug]) return defaultStat;
     return stats[citySlug][cat] || defaultStat;
