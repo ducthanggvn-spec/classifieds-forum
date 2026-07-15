@@ -162,9 +162,9 @@ export default async function RootLayout({
             </div>
 
             {/* Bottom Nav: Menu Tabs */}
-            <div className="bg-secondary">
-              <div className="max-w-7xl mx-auto px-4 flex">
-                <nav className="flex font-medium text-sm">
+            <div className="bg-secondary border-t border-white/10">
+              <div className="max-w-7xl mx-auto px-4 flex items-center overflow-x-auto whitespace-nowrap scrollbar-hide">
+                <nav className="flex font-medium text-sm flex-shrink-0">
                   <Link href="/" className="px-4 py-3 hover:bg-white/10 transition-colors border-r border-white/10 text-white">
                     Trang chủ
                   </Link>
@@ -173,6 +173,13 @@ export default async function RootLayout({
                     Fanpage
                   </a>
                 </nav>
+                <div className="flex items-center gap-2 ml-4 text-[13px] font-medium text-blue-100 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 flex-shrink-0">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </span>
+                  Các bài viết trên forum sẽ được tự động đăng lên Fanpage trong 30 phút!
+                </div>
               </div>
             </div>
           </header>
