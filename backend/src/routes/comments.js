@@ -134,78 +134,78 @@ router.post('/', requireAuth, async (req, res) => {
         where: { id: user.id },
         data: { postCount: { increment: 1 } }
       });
+    }
 
-      // Cập nhật lastBumpedAt của bài viết để Đẩy bài (Up Top) tự động khi có bình luận mới
-      await prisma.post.update({
-        where: { id: parseInt(postId) },
-        data: { lastBumpedAt: new Date() }
+    // Luôn Cập nhật lastBumpedAt của bài viết để Đẩy bài (Up Top) tự động khi có bình luận mới (kể cả gộp bài)
+    await prisma.post.update({
+      where: { id: parseInt(postId) },
+      data: { lastBumpedAt: new Date() }
+    });
+
+    // Tạo thông báo cho chủ post (nếu người bình luận không phải chủ post)
+    if (post.userId !== user.id) {
+      await prisma.notification.create({
+        data: {
+          recipientId: post.userId,
+          actorId: user.id,
+          type: 'COMMENT',
+          targetId: post.id,
+          content: `đã bình luận trong bài viết "${post.title.substring(0, 30)}..." của bạn.`
+        }
+      });
+    }
+
+    // Nhận diện và thông báo cho người bị trích dẫn (quote) trong đoạn nội dung MỚI thêm (safeContent)
+    const quoteRegex = /\[quote=([^\]]+)\]/g;
+    let match;
+    const mentionedNicknames = new Set();
+    while ((match = quoteRegex.exec(safeContent)) !== null) {
+      mentionedNicknames.add(match[1]);
+    }
+
+    const quotedUserIds = new Set();
+    for (const nickname of mentionedNicknames) {
+      // Tìm user theo nickname (không phân biệt hoa thường để an toàn)
+      const quotedUser = await prisma.user.findFirst({
+        where: { nickname: { equals: nickname, mode: 'insensitive' } }
       });
 
-      // Tạo thông báo cho chủ post (nếu người bình luận không phải chủ post)
-      if (post.userId !== user.id) {
+      // Chỉ gửi nếu user tồn tại, khác với người đang comment, và khác chủ bài viết (vì chủ bài đã được thông báo ở trên)
+      if (quotedUser && quotedUser.id !== user.id && quotedUser.id !== post.userId) {
+        quotedUserIds.add(quotedUser.id);
         await prisma.notification.create({
           data: {
-            recipientId: post.userId,
+            recipientId: quotedUser.id,
             actorId: user.id,
-            type: 'COMMENT',
+            type: 'REPLY',
             targetId: post.id,
-            content: `đã bình luận trong bài viết "${post.title.substring(0, 30)}..." của bạn.`
+            content: `đã trích dẫn bình luận của bạn trong bài viết "${post.title.substring(0, 30)}...".`
           }
         });
       }
+    }
 
-      // Nhận diện và thông báo cho người bị trích dẫn (quote)
-      const quoteRegex = /\[quote=([^\]]+)\]/g;
-      let match;
-      const mentionedNicknames = new Set();
-      while ((match = quoteRegex.exec(safeContent)) !== null) {
-        mentionedNicknames.add(match[1]);
-      }
+    // Thông báo cho những người cùng tham gia (đã từng bình luận)
+    const previousComments = await prisma.comment.findMany({
+      where: { postId: parseInt(postId) },
+      select: { userId: true },
+      distinct: ['userId']
+    });
 
-      const quotedUserIds = new Set();
-      for (const nickname of mentionedNicknames) {
-        // Tìm user theo nickname (không phân biệt hoa thường để an toàn)
-        const quotedUser = await prisma.user.findFirst({
-          where: { nickname: { equals: nickname, mode: 'insensitive' } }
-        });
+    const participantIds = previousComments
+      .map(c => c.userId)
+      .filter(id => id !== user.id && id !== post.userId && !quotedUserIds.has(id));
 
-        // Chỉ gửi nếu user tồn tại, khác với người đang comment, và khác chủ bài viết (vì chủ bài đã được thông báo ở trên)
-        if (quotedUser && quotedUser.id !== user.id && quotedUser.id !== post.userId) {
-          quotedUserIds.add(quotedUser.id);
-          await prisma.notification.create({
-            data: {
-              recipientId: quotedUser.id,
-              actorId: user.id,
-              type: 'REPLY',
-              targetId: post.id,
-              content: `đã trích dẫn bình luận của bạn trong bài viết "${post.title.substring(0, 30)}...".`
-            }
-          });
-        }
-      }
-
-      // Thông báo cho những người cùng tham gia (đã từng bình luận)
-      const previousComments = await prisma.comment.findMany({
-        where: { postId: parseInt(postId) },
-        select: { userId: true },
-        distinct: ['userId']
+    if (participantIds.length > 0) {
+      await prisma.notification.createMany({
+        data: participantIds.map(id => ({
+          recipientId: id,
+          actorId: user.id,
+          type: 'COMMENT',
+          targetId: post.id,
+          content: `cũng đã bình luận trong bài viết "${post.title.substring(0, 30)}..." mà bạn đang theo dõi.`
+        }))
       });
-
-      const participantIds = previousComments
-        .map(c => c.userId)
-        .filter(id => id !== user.id && id !== post.userId && !quotedUserIds.has(id));
-
-      if (participantIds.length > 0) {
-        await prisma.notification.createMany({
-          data: participantIds.map(id => ({
-            recipientId: id,
-            actorId: user.id,
-            type: 'COMMENT',
-            targetId: post.id,
-            content: `cũng đã bình luận trong bài viết "${post.title.substring(0, 30)}..." mà bạn đang theo dõi.`
-          }))
-        });
-      }
     }
 
     res.json({ success: true, data: comment });
