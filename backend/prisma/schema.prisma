@@ -20,6 +20,7 @@ model User {
   birthYear     Int?     // Lưu năm sinh để hiển thị tuổi/danh xưng
   signature     String?  // Chữ ký cá nhân hiển thị dưới bài viết
   role          String   @default("user") // admin, mod, user
+  isBanned      Boolean  @default(false)
   postCount     Int      @default(0)      // Dùng để tính danh hiệu: Lính mới, Thành viên lâu năm...
   createdAt     DateTime @default(now())
 

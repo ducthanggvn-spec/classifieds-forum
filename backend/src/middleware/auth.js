@@ -36,6 +36,10 @@ const requireAuth = async (req, res, next) => {
       return res.status(401).json({ success: false, error: 'Người dùng không tồn tại trong hệ thống' });
     }
 
+    if (user.isBanned) {
+      return res.status(403).json({ success: false, error: 'Tài khoản của bạn đã bị khóa' });
+    }
+
     req.user = user; // Lưu thông tin user vào request
     next();
   } catch (error) {
@@ -59,6 +63,10 @@ const requireAdminOrMod = async (req, res, next) => {
 
     if (!user) {
       return res.status(401).json({ success: false, error: 'Người dùng không tồn tại' });
+    }
+
+    if (user.isBanned) {
+      return res.status(403).json({ success: false, error: 'Tài khoản của bạn đã bị khóa' });
     }
 
     if (user.role !== 'admin' && user.role !== 'mod') {
@@ -88,6 +96,10 @@ const requireAdmin = async (req, res, next) => {
 
     if (!user) {
       return res.status(401).json({ success: false, error: 'Người dùng không tồn tại' });
+    }
+
+    if (user.isBanned) {
+      return res.status(403).json({ success: false, error: 'Tài khoản của bạn đã bị khóa' });
     }
 
     if (user.role !== 'admin') {

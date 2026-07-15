@@ -33,10 +33,69 @@ export default function AdminDashboard({ currentUser, initialUsers, initialLogs 
     }
   };
 
+  const handleToggleBan = async (userId: number, currentBanned: boolean) => {
+    const action = currentBanned ? 'MỞ KHÓA' : 'KHÓA (BAN)';
+    const reason = prompt(`Nhập lý do ${action} tài khoản này:`, currentBanned ? 'Mở khóa tài khoản' : 'Vi phạm nội quy');
+    if (reason === null) return; // User cancelled
+
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
+      const res = await fetch(`${API_URL}/admin/users/${userId}/ban`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          "user-id": currentUser.id.toString()
+        },
+        body: JSON.stringify({ isBanned: !currentBanned, reason })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message);
+        setUsers(users.map(u => u.id === userId ? { ...u, isBanned: !currentBanned } : u));
+      } else {
+        alert(data.error || "Lỗi");
+      }
+    } catch (e) {
+      alert("Lỗi kết nối");
+    }
+  };
+
+  const handleDeleteUser = async (userId: number, nickname: string) => {
+    const confirm1 = confirm(`CẢNH BÁO: Bạn chuẩn bị XÓA HOÀN TOÀN người dùng ${nickname}. Toàn bộ bài đăng và bình luận của người này sẽ bị xóa theo. Bạn có chắc chắn không?`);
+    if (!confirm1) return;
+    
+    const reason = prompt(`Bắt buộc nhập lý do XÓA người dùng ${nickname}:`);
+    if (!reason) {
+      alert("Phải nhập lý do xóa!");
+      return;
+    }
+
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
+      const res = await fetch(`${API_URL}/admin/users/${userId}`, {
+        method: "DELETE",
+        headers: { 
+          "Content-Type": "application/json",
+          "user-id": currentUser.id.toString()
+        },
+        body: JSON.stringify({ reason })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message);
+        setUsers(users.filter(u => u.id !== userId));
+      } else {
+        alert(data.error || "Lỗi");
+      }
+    } catch (e) {
+      alert("Lỗi kết nối");
+    }
+  };
+
   return (
     <div>
       <div className="flex gap-2 border-b border-border mb-6">
-        {currentUser.role === 'admin' && (
+        {(currentUser.role === 'admin' || currentUser.role === 'mod') && (
           <button 
             className={`px-4 py-2 font-bold ${activeTab === 'users' ? 'bg-[#245992] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'} rounded-t`}
             onClick={() => setActiveTab('users')}
@@ -52,7 +111,7 @@ export default function AdminDashboard({ currentUser, initialUsers, initialLogs 
         </button>
       </div>
 
-      {activeTab === 'users' && currentUser.role === 'admin' && (
+      {activeTab === 'users' && (currentUser.role === 'admin' || currentUser.role === 'mod') && (
         <div className="bg-white dark:bg-primary shadow-sm border border-border rounded overflow-hidden">
           <table className="w-full text-left text-sm">
             <thead className="bg-gray-100 dark:bg-muted border-b border-border">
@@ -60,6 +119,7 @@ export default function AdminDashboard({ currentUser, initialUsers, initialLogs 
                 <th className="p-3">ID</th>
                 <th className="p-3">Nickname</th>
                 <th className="p-3">Role</th>
+                <th className="p-3">Trạng thái</th>
                 <th className="p-3">Số bài</th>
                 <th className="p-3 text-right">Thao tác</th>
               </tr>
@@ -74,9 +134,16 @@ export default function AdminDashboard({ currentUser, initialUsers, initialLogs 
                       {u.role.toUpperCase()}
                     </span>
                   </td>
+                  <td className="p-3">
+                    {u.isBanned ? (
+                      <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-600 text-white animate-pulse">BANNED</span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-700">ACTIVE</span>
+                    )}
+                  </td>
                   <td className="p-3">{u.postCount}</td>
-                  <td className="p-3 text-right">
-                    {u.id !== currentUser.id && (
+                  <td className="p-3 text-right space-x-2">
+                    {u.id !== currentUser.id && currentUser.role === 'admin' && (
                       <select 
                         value={u.role} 
                         onChange={(e) => handleRoleChange(u.id, e.target.value)}
@@ -86,6 +153,24 @@ export default function AdminDashboard({ currentUser, initialUsers, initialLogs 
                         <option value="mod">MOD</option>
                         <option value="admin">ADMIN</option>
                       </select>
+                    )}
+                    
+                    {u.id !== currentUser.id && (currentUser.role === 'admin' || (currentUser.role === 'mod' && u.role === 'user')) && (
+                      <button 
+                        onClick={() => handleToggleBan(u.id, u.isBanned)}
+                        className={`px-3 py-1 text-xs font-bold rounded ${u.isBanned ? 'bg-gray-500 hover:bg-gray-600 text-white' : 'bg-yellow-500 hover:bg-yellow-600 text-white'}`}
+                      >
+                        {u.isBanned ? 'UNBAN' : 'BAN'}
+                      </button>
+                    )}
+
+                    {u.id !== currentUser.id && currentUser.role === 'admin' && (
+                      <button 
+                        onClick={() => handleDeleteUser(u.id, u.nickname)}
+                        className="px-3 py-1 text-xs font-bold rounded bg-red-600 hover:bg-red-700 text-white"
+                      >
+                        DELETE
+                      </button>
                     )}
                   </td>
                 </tr>

@@ -3,8 +3,8 @@ const router = express.Router();
 const prisma = require('../db');
 const { requireAdmin, requireAdminOrMod } = require('../middleware/auth');
 
-// Lấy danh sách thành viên (Chỉ Admin)
-router.get('/users', requireAdmin, async (req, res) => {
+// Lấy danh sách thành viên (Admin và Mod)
+router.get('/users', requireAdminOrMod, async (req, res) => {
   try {
     const users = await prisma.user.findMany({
       select: {
@@ -12,6 +12,7 @@ router.get('/users', requireAdmin, async (req, res) => {
         email: true,
         nickname: true,
         role: true,
+        isBanned: true,
         postCount: true,
         createdAt: true,
       },
@@ -48,6 +49,94 @@ router.put('/users/:id/role', requireAdmin, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: 'Lỗi khi cập nhật quyền' });
+  }
+});
+
+// Khóa/Mở khóa thành viên (Ban) - Admin & Mod
+router.put('/users/:id/ban', requireAdminOrMod, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { isBanned, reason } = req.body;
+
+    if (req.user.id === userId) {
+      return res.status(400).json({ success: false, error: 'Không thể tự khóa tài khoản của chính mình' });
+    }
+
+    const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!targetUser) {
+      return res.status(404).json({ success: false, error: 'Người dùng không tồn tại' });
+    }
+
+    // Mod không được phép Ban Admin hoặc Mod khác
+    if (req.user.role === 'mod' && (targetUser.role === 'admin' || targetUser.role === 'mod')) {
+      return res.status(403).json({ success: false, error: 'Bạn không có quyền khóa tài khoản của Admin hoặc Mod khác' });
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isBanned: !!isBanned }
+    });
+
+    // Lưu Log
+    await prisma.moderationLog.create({
+      data: {
+        modId: req.user.id,
+        action: isBanned ? 'BAN_USER' : 'UNBAN_USER',
+        targetId: userId,
+        targetInfo: targetUser.nickname,
+        reason: reason || (isBanned ? 'Vi phạm nội quy' : 'Mở khóa tài khoản')
+      }
+    });
+
+    res.json({ success: true, message: isBanned ? 'Đã khóa tài khoản thành công' : 'Đã mở khóa tài khoản thành công' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Lỗi khi xử lý thao tác khóa tài khoản' });
+  }
+});
+
+// Xóa vĩnh viễn thành viên (Delete) - Chỉ Admin
+router.delete('/users/:id', requireAdmin, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { reason } = req.body;
+
+    if (!reason) {
+      return res.status(400).json({ success: false, error: 'Bắt buộc phải nhập lý do xóa tài khoản' });
+    }
+
+    if (req.user.id === userId) {
+      return res.status(400).json({ success: false, error: 'Không thể tự xóa tài khoản của chính mình' });
+    }
+
+    const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!targetUser) {
+      return res.status(404).json({ success: false, error: 'Người dùng không tồn tại' });
+    }
+
+    // Xóa từ Supabase Auth (Tùy chọn, hiện tại chỉ xóa từ DB)
+    // Nếu muốn xóa sạch từ Supabase auth, cần dùng Supabase Admin API
+    // Tuy nhiên, xóa khỏi DB cũng khiến user không thể đăng nhập do requireAuth block.
+
+    await prisma.user.delete({
+      where: { id: userId }
+    });
+
+    // Lưu Log
+    await prisma.moderationLog.create({
+      data: {
+        modId: req.user.id,
+        action: 'DELETE_USER',
+        targetId: userId,
+        targetInfo: targetUser.nickname,
+        reason: reason
+      }
+    });
+
+    res.json({ success: true, message: 'Đã xóa tài khoản thành công' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Lỗi khi xóa tài khoản' });
   }
 });
 
