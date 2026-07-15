@@ -222,6 +222,104 @@ export default async function Home() {
           </div>
         </div>
       </div>
+
+      {/* CHUYÊN MỤC NHẬN SHIP / TUYỂN SHIP */}
+      <div className="border-b border-border mb-4 pb-2 mt-6">
+        <h2 className="text-xl font-bold text-teal-600 dark:text-teal-400">Nhận Ship / Tuyển Ship</h2>
+        <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">Dịch vụ giao nhận hàng hóa, kết nối shipper và chủ shop</p>
+      </div>
+
+      <div className="bg-white dark:bg-[#111827] border border-border shadow-sm rounded-md overflow-hidden">
+        <div className="grid grid-cols-12 gap-2 p-2 bg-teal-600 dark:bg-teal-800 text-white font-bold text-xs uppercase">
+          <div className="col-span-8 md:col-span-8 pl-2">Khu vực / Tỉnh thành</div>
+          <div className="hidden md:block md:col-span-2 text-center">Thống kê</div>
+          <div className="col-span-4 md:col-span-2 text-right pr-2">Hoạt động mới</div>
+        </div>
+
+        {/* Row: Hà Nội */}
+        <div className="grid grid-cols-12 gap-2 p-2 sm:p-3 border-b border-border hover:bg-teal-50 dark:hover:bg-[#1E293B] transition-colors items-center group">
+          <div className="col-span-8 md:col-span-8 flex items-center gap-3">
+            <div className="w-8 h-8 bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400 rounded flex items-center justify-center font-bold text-sm shrink-0">
+              HN
+            </div>
+            <div>
+              <Link href="/ha-noi?category=ship" className="font-bold text-[15px] text-teal-700 dark:text-teal-400 group-hover:underline leading-tight">
+                Hà Nội (Ship)
+              </Link>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Tìm ship nội thành, ngoại thành...</p>
+            </div>
+          </div>
+          <div className="hidden md:block md:col-span-2 text-center text-[11px] text-gray-600 dark:text-gray-400">
+            <div><span className="font-semibold text-gray-800 dark:text-gray-200">{getStat('ha-noi', 'ship').posts}</span> Bài viết</div>
+          </div>
+          <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 dark:text-gray-400 pr-1">
+            {getStat('ha-noi', 'ship').latestTime ? (
+              <>
+                <div>{timeAgo(getStat('ha-noi', 'ship').latestTime)}</div>
+                <div className="text-teal-600 dark:text-teal-400 truncate">{getStat('ha-noi', 'ship').latestTitle}</div>
+              </>
+            ) : (
+              <div className="text-teal-600 dark:text-teal-400 truncate">Chưa có</div>
+            )}
+          </div>
+        </div>
+
+        {/* Row: Hải Phòng */}
+        <div className="grid grid-cols-12 gap-2 p-2 sm:p-3 border-b border-border hover:bg-teal-50 dark:hover:bg-[#1E293B] transition-colors items-center group">
+          <div className="col-span-8 md:col-span-8 flex items-center gap-3">
+            <div className="w-8 h-8 bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400 rounded flex items-center justify-center font-bold text-sm shrink-0">
+              HP
+            </div>
+            <div>
+              <Link href="/hai-phong?category=ship" className="font-bold text-[15px] text-teal-700 dark:text-teal-400 group-hover:underline leading-tight">
+                Hải Phòng (Ship)
+              </Link>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Ship khu vực nội thành, cảng...</p>
+            </div>
+          </div>
+          <div className="hidden md:block md:col-span-2 text-center text-[11px] text-gray-600 dark:text-gray-400">
+            <div><span className="font-semibold text-gray-800 dark:text-gray-200">{getStat('hai-phong', 'ship').posts}</span> Bài viết</div>
+          </div>
+          <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 dark:text-gray-400 pr-1">
+            {getStat('hai-phong', 'ship').latestTime ? (
+              <>
+                <div>{timeAgo(getStat('hai-phong', 'ship').latestTime)}</div>
+                <div className="text-teal-600 dark:text-teal-400 truncate">{getStat('hai-phong', 'ship').latestTitle}</div>
+              </>
+            ) : (
+              <div className="text-teal-600 dark:text-teal-400 truncate">Chưa có</div>
+            )}
+          </div>
+        </div>
+
+        {/* Row: Hồ Chí Minh */}
+        <div className="grid grid-cols-12 gap-2 p-2 sm:p-3 hover:bg-teal-50 dark:hover:bg-[#1E293B] transition-colors items-center group">
+          <div className="col-span-8 md:col-span-8 flex items-center gap-3">
+            <div className="w-8 h-8 bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400 rounded flex items-center justify-center font-bold text-sm shrink-0">
+              HCM
+            </div>
+            <div>
+              <Link href="/ho-chi-minh?category=ship" className="font-bold text-[15px] text-teal-700 dark:text-teal-400 group-hover:underline leading-tight">
+                Hồ Chí Minh (Ship)
+              </Link>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Ship liên quận, xe ôm công nghệ...</p>
+            </div>
+          </div>
+          <div className="hidden md:block md:col-span-2 text-center text-[11px] text-gray-600 dark:text-gray-400">
+            <div><span className="font-semibold text-gray-800 dark:text-gray-200">{getStat('ho-chi-minh', 'ship').posts}</span> Bài viết</div>
+          </div>
+          <div className="col-span-4 md:col-span-2 text-right text-[11px] text-gray-500 dark:text-gray-400 pr-1">
+            {getStat('ho-chi-minh', 'ship').latestTime ? (
+              <>
+                <div>{timeAgo(getStat('ho-chi-minh', 'ship').latestTime)}</div>
+                <div className="text-teal-600 dark:text-teal-400 truncate">{getStat('ho-chi-minh', 'ship').latestTitle}</div>
+              </>
+            ) : (
+              <div className="text-teal-600 dark:text-teal-400 truncate">Chưa có</div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

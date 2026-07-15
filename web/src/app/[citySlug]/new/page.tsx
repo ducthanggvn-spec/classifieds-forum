@@ -65,6 +65,7 @@ export default function CreatePostPage({ params }: { params: Promise<{ citySlug:
     formData.append("citySlug", citySlug);
     formData.append("content", content); // TextArea doesn't automatically submit its value properly if overridden sometimes, but better safe.
     if (category === 'food') formData.append("categoryId", "2");
+    else if (category === 'ship') formData.append("categoryId", "3");
     
     try {
       const result = await createPost(formData);
@@ -196,6 +197,17 @@ export default function CreatePostPage({ params }: { params: Promise<{ citySlug:
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="postType" value="drink" className="text-purple-600 focus:ring-purple-600" />
                   <span className="text-sm font-bold text-purple-600">Quán Uống</span>
+                </label>
+              </>
+            ) : category === 'ship' ? (
+              <>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="postType" value="nhan_ship" defaultChecked className="text-teal-600 focus:ring-teal-600" />
+                  <span className="text-sm font-bold text-teal-600">Nhận Ship</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="postType" value="tuyen_ship" className="text-purple-600 focus:ring-purple-600" />
+                  <span className="text-sm font-bold text-purple-600">Tuyển Ship</span>
                 </label>
               </>
             ) : (

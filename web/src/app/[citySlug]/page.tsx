@@ -54,6 +54,7 @@ export default async function CityMarketPage({
   if (q) queryParams.append('q', q);
   if (page) queryParams.append('page', page);
   if (category === 'food') queryParams.append('categoryId', '2');
+  else if (category === 'ship') queryParams.append('categoryId', '3');
 
   const res = await fetch(`${API_URL}/posts?${queryParams.toString()}`, { next: { revalidate: 15 } });
   const result = res.ok ? await res.json() : { success: false, data: [], pagination: { totalPages: 1, currentPage: 1 } };
@@ -74,13 +75,13 @@ export default async function CityMarketPage({
     <div className="space-y-6">
       <div className="border-b border-border mb-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
-          <h1 className={`text-2xl sm:text-3xl font-bold ${category === 'food' ? 'text-orange-600' : 'text-primary'}`}>
-            {category === 'food' ? `${cityName.replace('Thị trường', 'Ăn uống')}` : cityName}
+          <h1 className={`text-2xl sm:text-3xl font-bold ${category === 'food' ? 'text-orange-600' : category === 'ship' ? 'text-teal-600' : 'text-primary'}`}>
+            {category === 'food' ? `${cityName.replace('Thị trường', 'Ăn uống')}` : category === 'ship' ? `${cityName.replace('Thị trường', 'Giao nhận - Ship')}` : cityName}
           </h1>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             <SearchBar />
             <Link 
-              href={`/${citySlug}/new${category === 'food' ? '?category=food' : ''}`}
+              href={`/${citySlug}/new${category ? `?category=${category}` : ''}`}
               className="w-full sm:w-auto text-center bg-accent hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow transition-colors whitespace-nowrap"
             >
               + Đăng Tin Mới
@@ -91,22 +92,22 @@ export default async function CityMarketPage({
         {/* BỘ LỌC NẰM BÊN TRONG TỪNG THỊ TRƯỜNG */}
         <div className="flex flex-wrap gap-1">
           <Link 
-            href={`/${citySlug}${category === 'food' ? '?category=food' : ''}`}
-            className={`flex-1 sm:flex-none whitespace-nowrap px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium rounded-t transition-colors ${!type ? (category === 'food' ? 'text-orange-600 border-b-2 border-orange-600 bg-muted/50' : 'text-primary border-b-2 border-primary bg-muted/50') : `text-gray-500 hover:${category === 'food' ? 'text-orange-600' : 'text-primary'} hover:bg-muted/50`}`}
+            href={`/${citySlug}${category ? `?category=${category}` : ''}`}
+            className={`flex-1 sm:flex-none whitespace-nowrap px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium rounded-t transition-colors ${!type ? (category === 'food' ? 'text-orange-600 border-b-2 border-orange-600 bg-muted/50' : category === 'ship' ? 'text-teal-600 border-b-2 border-teal-600 bg-muted/50' : 'text-primary border-b-2 border-primary bg-muted/50') : `text-gray-500 hover:${category === 'food' ? 'text-orange-600' : category === 'ship' ? 'text-teal-600' : 'text-primary'} hover:bg-muted/50`}`}
           >
             Chung
           </Link>
           <Link 
-            href={`/${citySlug}?type=${category === 'food' ? 'eat&category=food' : 'buy'}`}
-            className={`flex-1 sm:flex-none whitespace-nowrap px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium rounded-t transition-colors ${type === (category === 'food' ? 'eat' : 'buy') ? (category === 'food' ? 'text-orange-600 border-b-2 border-orange-600 bg-muted/50' : 'text-primary border-b-2 border-primary bg-muted/50') : `text-gray-500 hover:${category === 'food' ? 'text-orange-600' : 'text-primary'} hover:bg-muted/50`}`}
+            href={`/${citySlug}?type=${category === 'food' ? 'eat' : category === 'ship' ? 'nhan_ship' : 'buy'}${category ? `&category=${category}` : ''}`}
+            className={`flex-1 sm:flex-none whitespace-nowrap px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium rounded-t transition-colors ${type === (category === 'food' ? 'eat' : category === 'ship' ? 'nhan_ship' : 'buy') ? (category === 'food' ? 'text-orange-600 border-b-2 border-orange-600 bg-muted/50' : category === 'ship' ? 'text-teal-600 border-b-2 border-teal-600 bg-muted/50' : 'text-primary border-b-2 border-primary bg-muted/50') : `text-gray-500 hover:${category === 'food' ? 'text-orange-600' : category === 'ship' ? 'text-teal-600' : 'text-primary'} hover:bg-muted/50`}`}
           >
-            {category === 'food' ? 'Quán Ăn' : 'Cần mua'}
+            {category === 'food' ? 'Quán Ăn' : category === 'ship' ? 'Nhận Ship' : 'Cần mua'}
           </Link>
           <Link 
-            href={`/${citySlug}?type=${category === 'food' ? 'drink&category=food' : 'sell'}`}
-            className={`flex-1 sm:flex-none whitespace-nowrap px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium rounded-t transition-colors ${type === (category === 'food' ? 'drink' : 'sell') ? (category === 'food' ? 'text-orange-600 border-b-2 border-orange-600 bg-muted/50' : 'text-primary border-b-2 border-primary bg-muted/50') : `text-gray-500 hover:${category === 'food' ? 'text-orange-600' : 'text-primary'} hover:bg-muted/50`}`}
+            href={`/${citySlug}?type=${category === 'food' ? 'drink' : category === 'ship' ? 'tuyen_ship' : 'sell'}${category ? `&category=${category}` : ''}`}
+            className={`flex-1 sm:flex-none whitespace-nowrap px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium rounded-t transition-colors ${type === (category === 'food' ? 'drink' : category === 'ship' ? 'tuyen_ship' : 'sell') ? (category === 'food' ? 'text-orange-600 border-b-2 border-orange-600 bg-muted/50' : category === 'ship' ? 'text-teal-600 border-b-2 border-teal-600 bg-muted/50' : 'text-primary border-b-2 border-primary bg-muted/50') : `text-gray-500 hover:${category === 'food' ? 'text-orange-600' : category === 'ship' ? 'text-teal-600' : 'text-primary'} hover:bg-muted/50`}`}
           >
-            {category === 'food' ? 'Quán Uống' : 'Cần bán'}
+            {category === 'food' ? 'Quán Uống' : category === 'ship' ? 'Tuyển Ship' : 'Cần bán'}
           </Link>
         </div>
       </div>
@@ -138,7 +139,7 @@ export default async function CityMarketPage({
       {/* Block bọc danh sách - Style Voz */}
       <div className="bg-white dark:bg-primary border border-border shadow-sm rounded-sm overflow-hidden mt-4">
         {/* Table Header - Voz Node Header */}
-        <div className={`hidden sm:grid grid-cols-12 gap-2 p-2 text-white font-bold text-sm uppercase border-b border-border ${category === 'food' ? 'bg-orange-600' : 'bg-secondary'}`}>
+        <div className={`hidden sm:grid grid-cols-12 gap-2 p-2 text-white font-bold text-sm uppercase border-b border-border ${category === 'food' ? 'bg-orange-600' : category === 'ship' ? 'bg-teal-600' : 'bg-secondary'}`}>
           <div className="col-span-8 md:col-span-7 pl-10">Chủ đề mới cập nhật</div>
           <div className="hidden md:block md:col-span-2 text-center">Thống kê</div>
           <div className="col-span-4 md:col-span-3 text-right pr-2">Bài mới nhất</div>

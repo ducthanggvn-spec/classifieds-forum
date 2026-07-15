@@ -11,7 +11,8 @@ router.get('/', async (req, res) => {
     for (const city of cities) {
       stats[city.slug] = {
         marketplace: { posts: 0, replies: 0 },
-        food: { posts: 0, replies: 0 }
+        food: { posts: 0, replies: 0 },
+        ship: { posts: 0, replies: 0 }
       };
 
       // Thống kê Mua bán (categoryId = 1)
@@ -45,6 +46,22 @@ router.get('/', async (req, res) => {
       stats[city.slug].food.replies = foodPosts.reduce((acc, post) => acc + post.comments.length, 0);
       stats[city.slug].food.latestTitle = foodLatest ? foodLatest.title : null;
       stats[city.slug].food.latestTime = foodLatest ? foodLatest.lastBumpedAt : null;
+
+      // Thống kê Ship (categoryId = 3)
+      const shipPosts = await prisma.post.findMany({ 
+        where: { cityId: city.id, categoryId: 3 },
+        select: { id: true, comments: { select: { id: true } } }
+      });
+      const shipLatest = await prisma.post.findFirst({
+        where: { cityId: city.id, categoryId: 3 },
+        orderBy: { lastBumpedAt: 'desc' },
+        select: { title: true, lastBumpedAt: true }
+      });
+
+      stats[city.slug].ship.posts = shipPosts.length;
+      stats[city.slug].ship.replies = shipPosts.reduce((acc, post) => acc + post.comments.length, 0);
+      stats[city.slug].ship.latestTitle = shipLatest ? shipLatest.title : null;
+      stats[city.slug].ship.latestTime = shipLatest ? shipLatest.lastBumpedAt : null;
     }
 
     res.json({ success: true, data: stats });

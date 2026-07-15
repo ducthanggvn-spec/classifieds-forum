@@ -62,6 +62,8 @@ export default function TopicListItem({ post, citySlug, currentUser }: { post: a
               {post.listingType === 'sell' && <span className="text-[#27ae60] font-bold mr-1">[Cần Bán]</span>}
               {post.listingType === 'eat' && <span className="text-orange-600 font-bold mr-1">[Quán Ăn]</span>}
               {post.listingType === 'drink' && <span className="text-purple-600 font-bold mr-1">[Quán Uống]</span>}
+              {post.listingType === 'nhan_ship' && <span className="text-teal-600 font-bold mr-1">[Nhận Ship]</span>}
+              {post.listingType === 'tuyen_ship' && <span className="text-purple-600 font-bold mr-1">[Tuyển Ship]</span>}
             </>
           )}
           <span className={post.status === 'archived' ? 'text-gray-500 line-through' : ''}>

@@ -1,0 +1,1 @@
+const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); async function main() { const res = await prisma.post.updateMany({ where: { fbPostId: 'ERROR_API_REJECTED' }, data: { isPostedToFb: false, fbPostId: null } }); console.log('Reset:', res.count); } main().catch(console.error).finally(() => prisma.$disconnect());
