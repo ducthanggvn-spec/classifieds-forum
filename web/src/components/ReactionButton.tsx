@@ -49,8 +49,8 @@ export default function ReactionButton({ targetType, targetId, initialReactions 
       const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
       const endpoint = targetType === 'post' ? '/reactions/post' : '/reactions/comment';
       const body = targetType === 'post' 
-        ? { postId: targetId, type }
-        : { commentId: targetId, type };
+        ? { postId: targetId, type, supabaseUid: currentUserSupabaseUid }
+        : { commentId: targetId, type, supabaseUid: currentUserSupabaseUid };
 
       const res = await fetch(`${API_URL}${endpoint}`, {
         method: "POST",
