@@ -5,7 +5,7 @@ import Link from "next/link";
 import { timeAgo } from "@/utils/time";
 import { authFetch as fetch } from '@/utils/authFetch';
 
-export default function NotificationBell({ currentUserDbId }: { currentUserDbId: number }) {
+export default function NotificationBell() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -15,10 +15,9 @@ export default function NotificationBell({ currentUserDbId }: { currentUserDbId:
   const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" ? "/api" : "http://127.0.0.1:5000/api");
 
   const fetchNotifications = async () => {
-    if (!currentUserDbId) return;
     try {
       setIsLoading(true);
-      const res = await fetch(`${API_URL}/notifications/${currentUserDbId}`);
+      const res = await fetch(`${API_URL}/notifications`);
       if (res.ok) {
         const result = await res.json();
         setNotifications(result.data || []);
@@ -51,7 +50,7 @@ export default function NotificationBell({ currentUserDbId }: { currentUserDbId:
       document.removeEventListener("mousedown", handleClickOutside);
       clearInterval(interval);
     };
-  }, [currentUserDbId]);
+  }, []);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -63,7 +62,7 @@ export default function NotificationBell({ currentUserDbId }: { currentUserDbId:
 
   const markAllAsRead = async () => {
     try {
-      await fetch(`${API_URL}/notifications/user/${currentUserDbId}/read-all`, {
+      await fetch(`${API_URL}/notifications/read-all`, {
         method: 'PUT'
       });
       setUnreadCount(0);
@@ -102,7 +101,7 @@ export default function NotificationBell({ currentUserDbId }: { currentUserDbId:
     }
   };
 
-  if (!currentUserDbId) return null;
+
 
   return (
     <div className="relative" ref={dropdownRef}>
